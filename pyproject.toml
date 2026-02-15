@@ -5,9 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "audioop-lts>=0.2.2",
     "fastapi>=0.129.0",
-    "pipecat-ai",
+    "loguru>=0.7.3",
+    "numpy>=2.4.2",
+    "pyloudnorm>=0.2.0",
+    "python-dotenv>=1.2.1",
 ]
-
-[tool.uv.sources]
-pipecat-ai = { path = "../pipecat" }
