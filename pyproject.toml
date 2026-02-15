@@ -6,4 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.129.0",
+    "pipecat-ai",
 ]
+
+[tool.uv.sources]
+pipecat-ai = { path = "../pipecat" }
