@@ -10,6 +10,7 @@ dependencies = [
     "audioop-lts>=0.2.2",
     "docstring-parser>=0.17.0",
     "fastapi>=0.129.0",
+    "langchain>=1.2.10",
     "loguru>=0.7.3",
     "numpy>=2.4.2",
     "onnxruntime>=1.24.1",

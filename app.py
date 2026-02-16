@@ -29,4 +29,5 @@ logger.info("✅ Silero VAD model loaded")
 from lokin.frames.frames import LLMRunFrame
 
 logger.info("Loading pipeline components...")
-
+from lokin.pipeline.pipeline import Pipeline
+from lokin.pipeline.runner import PipelineRunner
