@@ -1,13 +1,7 @@
-#
-# Copyright (c) 2024-2026, Daily
-#
-# SPDX-License-Identifier: BSD 2-Clause License
-#
-
-"""Pipecat Quickstart Example.
+"""Lokin Quickstart.
 
 The example runs a simple voice AI bot that you can connect to using your
-browser and speak with it. You can also deploy this bot to Pipecat Cloud.
+browser and speak with it.
 
 Required AI services:
 - Deepgram (Speech-to-Text)
@@ -31,4 +25,8 @@ logger.info("Loading Silero VAD model...")
 from lokin.audio.vad.silero import SileroVADAnalyzer
 
 logger.info("✅ Silero VAD model loaded")
+
+from lokin.frames.frames import LLMRunFrame
+
+logger.info("Loading pipeline components...")
 

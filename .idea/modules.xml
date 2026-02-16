@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/lokin.iml" filepath="$PROJECT_DIR$/.idea/lokin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../pipecat/.idea/pipecat.iml" filepath="$PROJECT_DIR$/../pipecat/.idea/pipecat.iml" />
     </modules>
   </component>
 </project>
