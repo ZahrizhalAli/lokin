@@ -20,9 +20,9 @@ from typing import (
 from loguru import logger
 
 from lokin.adapters.base_llm_adapter import BaseLLMAdapter
-from pipecat.adapters.schemas.direct_function import DirectFunction, DirectFunctionWrapper
-from pipecat.adapters.services.open_ai_adapter import OpenAILLMAdapter
-from pipecat.frames.frames import (
+from lokin.adapters.schemas.direct_function import DirectFunction, DirectFunctionWrapper
+from lokin.adapters.services.open_ai_adapter import OpenAILLMAdapter
+from lokin.frames.frames import (
     CancelFrame,
     EndFrame,
     Frame,
@@ -42,19 +42,19 @@ from pipecat.frames.frames import (
     StartFrame,
     UserImageRequestFrame,
 )
-from pipecat.processors.aggregators.llm_context import (
+from lokin.processors.aggregators.llm_context import (
     LLMContext,
     LLMSpecificMessage,
 )
-from pipecat.processors.aggregators.llm_response import (
+from lokin.processors.aggregators.llm_response import (
     LLMAssistantAggregatorParams,
     LLMUserAggregatorParams,
 )
-from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
-from pipecat.processors.frame_processor import FrameDirection
-from pipecat.services.ai_service import AIService
-from pipecat.turns.user_turn_completion_mixin import UserTurnCompletionLLMServiceMixin
-from pipecat.utils.context.llm_context_summarization import (
+from lokin.processors.aggregators.openai_llm_context import OpenAILLMContext
+from lokin.processors.frame_processor import FrameDirection
+from lokin.services.ai_service import AIService
+from lokin.turns.user_turn_completion_mixin import UserTurnCompletionLLMServiceMixin
+from lokin.utils.context.llm_context_summarization import (
     LLMContextSummarizationUtil,
 )
 

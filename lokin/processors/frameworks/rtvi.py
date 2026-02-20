@@ -229,7 +229,7 @@ class RTVIConfig(BaseModel):
 
 
 #
-# Client -> Pipecat messages.
+# Client -> messages.
 #
 
 
