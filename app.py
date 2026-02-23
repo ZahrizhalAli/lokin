@@ -15,7 +15,6 @@ Run the bot using::
 
 import os
 
-from dotenv import load_dotenv
 from loguru import logger
 
 print("🚀 Starting Pipecat bot...")
@@ -47,7 +46,6 @@ from lokin.services.openai.stt import OpenAISTTService
 from lokin.services.openai.tts import OpenAITTSService
 from lokin.services.openai.llm import OpenAILLMService
 from lokin.transports.base_transport import BaseTransport, TransportParams
-from lokin.transports.daily.transport import DailyParams
 
 logger.info("✅ All components loaded successfully!")
 from dotenv import load_dotenv
@@ -125,10 +123,6 @@ async def bot(runner_args: RunnerArguments):
     """Main bot entry point for the bot starter."""
 
     transport_params = {
-        # "daily": lambda: DailyParams(
-        #     audio_in_enabled=True,
-        #     audio_out_enabled=True,
-        # ),
         "webrtc": lambda: TransportParams(
             audio_in_enabled=True,
             audio_out_enabled=True,

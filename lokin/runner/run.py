@@ -1,6 +1,6 @@
 """development runner.
 
-This development runner executes Pipecat bots and provides the supporting
+This development runner executes bots and provides the supporting
 infrastructure they need - creating Daily rooms and tokens, managing WebRTC
 connections, and setting up telephony webhook/WebSocket infrastructure. It
 supports multiple transport types with a unified interface.
@@ -45,7 +45,6 @@ Multiple transport example::
 
 Supported transports:
 
-- Daily - Creates rooms and tokens, runs bot as participant
 - WebRTC - Provides local WebRTC interface with prebuilt UI
 - Telephony - Handles webhook and WebSocket connections for Twilio, Telnyx, Plivo, Exotel
 
@@ -53,10 +52,6 @@ To run locally:
 
 - WebRTC: `python bot.py -t webrtc`
 - ESP32: `python bot.py -t webrtc --esp32 --host 192.168.1.100`
-- Daily (server): `python bot.py -t daily`
-- Daily (direct, testing only): `python bot.py -d`
-- Telephony: `python bot.py -t twilio -x your_username.ngrok.io`
-- Exotel: `python bot.py -t exotel` (no proxy needed, but ngrok connection to HTTP 7860 is required)
 """
 
 import argparse
@@ -168,12 +163,6 @@ def _create_server_app(args: argparse.Namespace):
     # Set up transport-specific routes
     if args.transport == "webrtc":
         _setup_webrtc_routes(app, args)
-        if args.whatsapp:
-            _setup_whatsapp_routes(app, args)
-    elif args.transport == "daily":
-        _setup_daily_routes(app, args)
-    elif args.transport in TELEPHONY_TRANSPORTS:
-        _setup_telephony_routes(app, args)
     else:
         logger.warning(f"Unknown transport type: {args.transport}")
 
@@ -361,456 +350,12 @@ def _add_lifespan_to_app(app: FastAPI, new_lifespan):
         app.router.lifespan_context = new_lifespan
 
 
-def _setup_whatsapp_routes(app: FastAPI, args: argparse.Namespace):
-    """Set up WhatsApp-specific routes."""
-    WHATSAPP_APP_SECRET = os.getenv("WHATSAPP_APP_SECRET")
-    WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
-    WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
-    WHATSAPP_WEBHOOK_VERIFICATION_TOKEN = os.getenv("WHATSAPP_WEBHOOK_VERIFICATION_TOKEN")
 
-    if not all(
-        [
-            WHATSAPP_APP_SECRET,
-            WHATSAPP_PHONE_NUMBER_ID,
-            WHATSAPP_TOKEN,
-            WHATSAPP_WEBHOOK_VERIFICATION_TOKEN,
-        ]
-    ):
-        logger.error(
-            """Missing required environment variables for WhatsApp transport:
-    WHATSAPP_APP_SECRET
-    WHATSAPP_PHONE_NUMBER_ID
-    WHATSAPP_TOKEN
-    WHATSAPP_WEBHOOK_VERIFICATION_TOKEN
-            """
-        )
-        return
 
-    try:
-        from lokin.transports.smallwebrtc.connection import SmallWebRTCConnection
-        from lokin.transports.whatsapp.api import WhatsAppWebhookRequest
-        from lokin.transports.whatsapp.client import WhatsAppClient
-    except ImportError as e:
-        logger.error(f"WhatsApp transport dependencies not installed: {e}")
-        return
 
-    # Global WhatsApp client instance
-    whatsapp_client: Optional[WhatsAppClient] = None
 
-    @app.get(
-        "/whatsapp",
-        summary="Verify WhatsApp webhook",
-        description="Handles WhatsApp webhook verification requests from Meta",
-    )
-    async def verify_webhook(request: Request):
-        """Verify WhatsApp webhook endpoint.
 
-        This endpoint is called by Meta's WhatsApp Business API to verify
-        the webhook URL during setup. It validates the verification token
-        and returns the challenge parameter if successful.
-        """
-        if whatsapp_client is None:
-            logger.error("WhatsApp client is not initialized")
-            raise HTTPException(status_code=503, detail="Service unavailable")
 
-        params = dict(request.query_params)
-        logger.debug(f"Webhook verification request received with params: {list(params.keys())}")
-
-        try:
-            result = await whatsapp_client.handle_verify_webhook_request(
-                params=params, expected_verification_token=WHATSAPP_WEBHOOK_VERIFICATION_TOKEN
-            )
-            logger.info("Webhook verification successful")
-            return result
-        except ValueError as e:
-            logger.warning(f"Webhook verification failed: {e}")
-            raise HTTPException(status_code=403, detail="Verification failed")
-
-    @app.post(
-        "/whatsapp",
-        summary="Handle WhatsApp webhook events",
-        description="Processes incoming WhatsApp messages and call events",
-    )
-    async def whatsapp_webhook(
-        body: WhatsAppWebhookRequest,
-        background_tasks: BackgroundTasks,
-        request: Request,
-        x_hub_signature_256: str = Header(None),
-    ):
-        """Handle incoming WhatsApp webhook events.
-
-        For call events, establishes WebRTC connections and spawns bot instances
-        in the background to handle real-time communication.
-        """
-        if whatsapp_client is None:
-            logger.error("WhatsApp client is not initialized")
-            raise HTTPException(status_code=503, detail="Service unavailable")
-
-        # Validate webhook object type
-        if body.object != "whatsapp_business_account":
-            logger.warning(f"Invalid webhook object type: {body.object}")
-            raise HTTPException(status_code=400, detail="Invalid object type")
-
-        logger.debug(f"Processing WhatsApp webhook: {body.model_dump()}")
-
-        async def connection_callback(connection: SmallWebRTCConnection):
-            """Handle new WebRTC connections from WhatsApp calls.
-
-            Called when a WebRTC connection is established for a WhatsApp call.
-            Spawns a bot instance to handle the conversation.
-
-            Args:
-                connection: The established WebRTC connection
-            """
-            bot_module = _get_bot_module()
-            runner_args = SmallWebRTCRunnerArguments(webrtc_connection=connection)
-            runner_args.cli_args = args
-            background_tasks.add_task(bot_module.bot, runner_args)
-
-        try:
-            # Process the webhook request
-            raw_body = await request.body()
-            result = await whatsapp_client.handle_webhook_request(
-                body, connection_callback, sha256_signature=x_hub_signature_256, raw_body=raw_body
-            )
-            logger.debug(f"Webhook processed successfully: {result}")
-            return {"status": "success", "message": "Webhook processed successfully"}
-        except ValueError as ve:
-            logger.warning(f"Invalid webhook request format: {ve}")
-            raise HTTPException(status_code=400, detail=f"Invalid request: {str(ve)}")
-        except Exception as e:
-            logger.error(f"Internal error processing webhook: {e}")
-            raise HTTPException(status_code=500, detail="Internal server error processing webhook")
-
-    @asynccontextmanager
-    async def whatsapp_lifespan(app: FastAPI):
-        """Manage WhatsApp client lifecycle and cleanup connections."""
-        nonlocal whatsapp_client
-
-        # Initialize WhatsApp client with persistent HTTP session
-        async with aiohttp.ClientSession() as session:
-            whatsapp_client = WhatsAppClient(
-                whatsapp_token=WHATSAPP_TOKEN,
-                whatsapp_secret=WHATSAPP_APP_SECRET,
-                phone_number_id=WHATSAPP_PHONE_NUMBER_ID,
-                session=session,
-            )
-            logger.info("WhatsApp client initialized successfully")
-
-            try:
-                yield  # Run the application
-            finally:
-                # Cleanup all active calls on shutdown
-                logger.info("Cleaning up WhatsApp client resources...")
-                if whatsapp_client:
-                    await whatsapp_client.terminate_all_calls()
-                logger.info("WhatsApp cleanup completed")
-
-    # Add the WhatsApp lifespan to the app
-    _add_lifespan_to_app(app, whatsapp_lifespan)
-
-
-def _setup_daily_routes(app: FastAPI, args: argparse.Namespace):
-    """Set up Daily-specific routes."""
-
-    @app.get("/")
-    async def create_room_and_start_agent():
-        """Launch a Daily bot and redirect to room."""
-        print("Starting bot with Daily transport and redirecting to Daily room")
-
-        import aiohttp
-
-        from lokin.runner.daily import configure
-
-        async with aiohttp.ClientSession() as session:
-            room_url, token = await configure(session)
-
-            # Start the bot in the background with empty body for GET requests
-            bot_module = _get_bot_module()
-            runner_args = DailyRunnerArguments(room_url=room_url, token=token)
-            runner_args.cli_args = args
-            asyncio.create_task(bot_module.bot(runner_args))
-            return RedirectResponse(room_url)
-
-    @app.post("/start")
-    async def start_agent(request: Request):
-        """Handler for /start endpoints.
-
-        Expects POST body like::
-            {
-                "createDailyRoom": true,
-                "dailyRoomProperties": { "start_video_off": true },
-                "dailyMeetingTokenProperties": { "is_owner": true, "user_name": "Bot" },
-                "body": { "custom_data": "value" }
-            }
-        """
-        print("Starting bot with Daily transport")
-
-        # Parse the request body
-        try:
-            request_data = await request.json()
-            logger.debug(f"Received request: {request_data}")
-        except Exception as e:
-            logger.error(f"Failed to parse request body: {e}")
-            request_data = {}
-
-        create_daily_room = request_data.get("createDailyRoom", False)
-        body = request_data.get("body", {})
-        daily_room_properties_dict = request_data.get("dailyRoomProperties", None)
-        daily_token_properties_dict = request_data.get("dailyMeetingTokenProperties", None)
-
-        bot_module = _get_bot_module()
-
-        existing_room_url = os.getenv("DAILY_ROOM_URL")
-
-        result = None
-
-        # Configure room if:
-        # 1. Explicitly requested via createDailyRoom in payload
-        # 2. Using pre-configured room from DAILY_ROOM_URL env var
-        if create_daily_room or existing_room_url:
-            import aiohttp
-
-            from lokin.runner.daily import configure
-            from lokin.transports.daily.utils import (
-                DailyMeetingTokenProperties,
-                DailyRoomProperties,
-            )
-
-            async with aiohttp.ClientSession() as session:
-                # Parse dailyRoomProperties if provided
-                room_properties = None
-                if daily_room_properties_dict:
-                    try:
-                        room_properties = DailyRoomProperties(**daily_room_properties_dict)
-                        logger.debug(f"Using custom room properties: {room_properties}")
-                    except Exception as e:
-                        logger.error(f"Failed to parse dailyRoomProperties: {e}")
-                        # Continue without custom properties
-
-                # Parse dailyMeetingTokenProperties if provided
-                token_properties = None
-                if daily_token_properties_dict:
-                    try:
-                        token_properties = DailyMeetingTokenProperties(
-                            **daily_token_properties_dict
-                        )
-                        logger.debug(f"Using custom token properties: {token_properties}")
-                    except Exception as e:
-                        logger.error(f"Failed to parse dailyMeetingTokenProperties: {e}")
-                        # Continue without custom properties
-
-                room_url, token = await configure(
-                    session, room_properties=room_properties, token_properties=token_properties
-                )
-                runner_args = DailyRunnerArguments(room_url=room_url, token=token, body=body)
-                result = {
-                    "dailyRoom": room_url,
-                    "dailyToken": token,
-                    "sessionId": str(uuid.uuid4()),
-                }
-        else:
-            runner_args = RunnerArguments(body=body)
-
-        # Update CLI args.
-        runner_args.cli_args = args
-
-        # Start the bot in the background
-        asyncio.create_task(bot_module.bot(runner_args))
-
-        return result
-
-    if args.dialin:
-
-        @app.post("/daily-dialin-webhook")
-        async def handle_dialin_webhook(request: Request):
-            """Handle incoming Daily PSTN dial-in webhook.
-
-            This endpoint mimics Pipecat Cloud's dial-in webhook handler.
-            It receives Daily webhook data, creates a SIP-enabled room, and starts the bot.
-
-            Expected webhook payload::
-
-                {
-                    "From": "+15551234567",
-                    "To": "+15559876543",
-                    "callId": "uuid-call-id",
-                    "callDomain": "uuid-call-domain",
-                    "sipHeaders": {...}  // optional
-                }
-
-            Returns::
-
-                {
-                    "dailyRoom": "https://...",
-                    "dailyToken": "...",
-                    "sessionId": "uuid"
-                }
-            """
-            logger.debug("Received Daily dial-in webhook")
-
-            try:
-                data = await request.json()
-                logger.debug(f"Webhook data: {data}")
-            except Exception as e:
-                logger.error(f"Failed to parse webhook data: {e}")
-                raise HTTPException(status_code=400, detail="Invalid JSON payload")
-
-            # Handle webhook verification test (sent by Daily when configuring webhook)
-            if data.get("test") or data.get("Test"):
-                logger.debug("Webhook verification test received")
-                return {"status": "OK"}
-
-            # Validate required fields
-            if not all(key in data for key in ["From", "To", "callId", "callDomain"]):
-                raise HTTPException(
-                    status_code=400,
-                    detail="Missing required fields: From, To, callId, callDomain",
-                )
-
-            import aiohttp
-
-            from lokin.runner.daily import configure
-            from lokin.runner.types import DailyDialinRequest, DialinSettings
-
-            # Create Daily room with SIP capabilities
-            async with aiohttp.ClientSession() as session:
-                try:
-                    room_config = await configure(session, sip_caller_phone=data.get("From"))
-                except Exception as e:
-                    logger.error(f"Failed to create Daily room: {e}")
-                    raise HTTPException(
-                        status_code=500, detail=f"Failed to create Daily room: {str(e)}"
-                    )
-
-            # Get Daily API URL from environment, fallback to production
-            daily_api_url = os.getenv("DAILY_API_URL", "https://api.daily.co/v1")
-
-            # Get Daily API key from environment
-            daily_api_key = os.getenv("DAILY_API_KEY")
-            if not daily_api_key:
-                logger.error("DAILY_API_KEY not found in environment")
-                raise HTTPException(
-                    status_code=500, detail="DAILY_API_KEY not configured on server"
-                )
-
-            # Prepare dial-in settings matching Pipecat Cloud structure
-            dialin_settings = DialinSettings(
-                call_id=data.get("callId"),
-                call_domain=data.get("callDomain"),
-                To=data.get("To"),
-                From=data.get("From"),
-                sip_headers=data.get("sipHeaders"),
-            )
-
-            # Create request body matching Pipecat Cloud payload
-            request_body = DailyDialinRequest(
-                dialin_settings=dialin_settings,
-                daily_api_key=daily_api_key,
-                daily_api_url=daily_api_url,
-            )
-
-            # Start bot with dial-in context
-            bot_module = _get_bot_module()
-            runner_args = DailyRunnerArguments(
-                room_url=room_config.room_url,
-                token=room_config.token,
-                body=request_body.model_dump(),
-            )
-            runner_args.cli_args = args
-
-            asyncio.create_task(bot_module.bot(runner_args))
-
-            # Generate session ID
-            session_id = str(uuid.uuid4())
-
-            # Return response matching Pipecat Cloud format
-            return {
-                "dailyRoom": room_config.room_url,
-                "dailyToken": room_config.token,
-                "sessionId": session_id,
-            }
-
-
-def _setup_telephony_routes(app: FastAPI, args: argparse.Namespace):
-    """Set up telephony-specific routes."""
-    # XML response templates (Exotel doesn't use XML webhooks)
-    XML_TEMPLATES = {
-        "twilio": f"""<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Connect>
-    <Stream url="wss://{args.proxy}/ws"></Stream>
-  </Connect>
-  <Pause length="40"/>
-</Response>""",
-        "telnyx": f"""<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Connect>
-    <Stream url="wss://{args.proxy}/ws" bidirectionalMode="rtp"></Stream>
-  </Connect>
-  <Pause length="40"/>
-</Response>""",
-        "plivo": f"""<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Stream bidirectional="true" keepCallAlive="true" contentType="audio/x-mulaw;rate=8000">wss://{args.proxy}/ws</Stream>
-</Response>""",
-    }
-
-    @app.post("/")
-    async def start_call():
-        """Handle telephony webhook and return XML response."""
-        if args.transport == "exotel":
-            # Exotel doesn't use POST webhooks - redirect to proper documentation
-            logger.debug("POST Exotel endpoint - not used")
-            return {
-                "error": "Exotel doesn't use POST webhooks",
-                "websocket_url": f"wss://{args.proxy}/ws",
-                "note": "Configure the WebSocket URL above in your Exotel App Bazaar Voicebot Applet",
-            }
-        else:
-            logger.debug(f"POST {args.transport.upper()} XML")
-            xml_content = XML_TEMPLATES.get(args.transport, "<Response></Response>")
-            return HTMLResponse(content=xml_content, media_type="application/xml")
-
-    @app.websocket("/ws")
-    async def websocket_endpoint(websocket: WebSocket):
-        """Handle WebSocket connections for telephony."""
-        await websocket.accept()
-        logger.debug("WebSocket connection accepted")
-        await _run_telephony_bot(websocket, args)
-
-    @app.get("/")
-    async def start_agent():
-        """Simple status endpoint for telephony transports."""
-        return {"status": f"Bot started with {args.transport}"}
-
-
-async def _run_daily_direct(args: argparse.Namespace):
-    """Run Daily bot with direct connection (no FastAPI server)."""
-    try:
-        from lokin.runner.daily import configure
-    except ImportError as e:
-        logger.error("Daily transport dependencies not installed.")
-        return
-
-    logger.info("Running with direct Daily connection...")
-
-    async with aiohttp.ClientSession() as session:
-        room_url, token = await configure(session)
-
-        # Direct connections have no request body, so use empty dict
-        runner_args = DailyRunnerArguments(room_url=room_url, token=token)
-        runner_args.handle_sigint = True
-        runner_args.cli_args = args
-
-        # Get the bot module and run it directly
-        bot_module = _get_bot_module()
-
-        print(f"📞 Joining Daily room: {room_url}")
-        print("   (Direct connection - no web server needed)")
-        print()
-
-        await bot_module.bot(runner_args)
 
 
 def _validate_and_clean_proxy(proxy: str) -> str:
@@ -892,13 +437,7 @@ def main(parser: Optional[argparse.ArgumentParser] = None):
         help="Transport type",
     )
     parser.add_argument("-x", "--proxy", help="Public proxy host name")
-    parser.add_argument(
-        "-d",
-        "--direct",
-        action="store_true",
-        default=False,
-        help="Connect directly to Daily room (automatically sets transport to daily)",
-    )
+
     parser.add_argument("-f", "--folder", type=str, help="Path to downloads folder")
     parser.add_argument(
         "-v", "--verbose", action="count", default=0, help="Increase logging verbosity"
@@ -915,12 +454,7 @@ def main(parser: Optional[argparse.ArgumentParser] = None):
         default=False,
         help="Enable SDP munging for ESP32 compatibility (requires --host with IP address)",
     )
-    parser.add_argument(
-        "--whatsapp",
-        action="store_true",
-        default=False,
-        help="Ensure requried WhatsApp environment variables are present",
-    )
+
 
     args = parser.parse_args()
 
@@ -929,9 +463,9 @@ def main(parser: Optional[argparse.ArgumentParser] = None):
         args.proxy = _validate_and_clean_proxy(args.proxy)
 
     # Auto-set transport to daily if --direct is used without explicit transport
-    if args.direct and args.transport == "webrtc":  # webrtc is the default
-        args.transport = "daily"
-    elif args.direct and args.transport != "daily":
+    if args.transport == "webrtc":  # webrtc is the default
+        args.transport = "webrtc"
+    elif args.transport != "daily":
         logger.error("--direct flag only works with Daily transport (-t daily)")
         return
 
@@ -950,37 +484,17 @@ def main(parser: Optional[argparse.ArgumentParser] = None):
     logger.add(sys.stderr, level="TRACE" if args.verbose else "DEBUG")
 
     # Handle direct Daily connection (no FastAPI server)
-    if args.direct:
-        print()
-        print("🚀 Connecting directly to Daily room...")
-        print()
-
-        # Run direct Daily connection
-        asyncio.run(_run_daily_direct(args))
-        return
 
     # Print startup message for server-based transports
     if args.transport == "webrtc":
         print()
         if args.esp32:
             print(f"🚀 Bot ready! (ESP32 mode)")
-        elif args.whatsapp:
-            print(f"🚀 Bot ready! (WhatsApp)")
         else:
             print(f"🚀 Bot ready!")
         print(f"   → Open http://{args.host}:{args.port}/client in your browser")
         print()
-    elif args.transport == "daily":
-        print()
-        print(f"🚀 Bot ready!")
-        if args.dialin:
-            print(
-                f"   → Daily dial-in webhook: http://{args.host}:{args.port}/daily-dialin-webhook"
-            )
-            print(f"   → Configure this URL in your Daily phone number settings")
-        else:
-            print(f"   → Open http://{args.host}:{args.port} in your browser to start a session")
-        print()
+
 
     RUNNER_DOWNLOADS_FOLDER = args.folder
     RUNNER_HOST = args.host
