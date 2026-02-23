@@ -15,8 +15,8 @@ from typing import Optional, Set, Type
 
 from loguru import logger
 
-from pipecat.frames.frames import MetricsFrame
-from pipecat.metrics.metrics import (
+from lokin.frames.frames import MetricsFrame
+from lokin.metrics.metrics import (
     LLMTokenUsage,
     LLMUsageMetricsData,
     MetricsData,
@@ -25,7 +25,7 @@ from pipecat.metrics.metrics import (
     TTFBMetricsData,
     TTSUsageMetricsData,
 )
-from pipecat.observers.base_observer import BaseObserver, FramePushed
+from lokin.observers.base_observer import BaseObserver, FramePushed
 
 
 class MetricsLogObserver(BaseObserver):

@@ -836,7 +836,7 @@ def traced_gemini_live(operation: str) -> Callable:
                             if msg and hasattr(msg, "usage_metadata") and msg.usage_metadata:
                                 usage = msg.usage_metadata
                                 # Create LLMTokenUsage object
-                                from pipecat.metrics.metrics import LLMTokenUsage
+                                from lokin.metrics.metrics import LLMTokenUsage
 
                                 tokens = LLMTokenUsage(
                                     prompt_tokens=usage.prompt_token_count or 0,
@@ -1061,7 +1061,7 @@ def traced_openai_realtime(operation: str) -> Callable:
                             if evt and hasattr(evt, "response") and hasattr(evt.response, "usage"):
                                 usage = evt.response.usage
                                 # Create LLMTokenUsage object
-                                from pipecat.metrics.metrics import LLMTokenUsage
+                                from lokin.metrics.metrics import LLMTokenUsage
 
                                 tokens = LLMTokenUsage(
                                     prompt_tokens=getattr(usage, "input_tokens", 0),

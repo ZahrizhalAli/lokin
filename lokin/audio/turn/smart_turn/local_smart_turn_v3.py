@@ -48,7 +48,7 @@ class LocalSmartTurnAnalyzerV3(BaseSmartTurn):
         if not smart_turn_model_path:
             # Load bundled model
             model_name = "smart-turn-v3.2-cpu.onnx"
-            package_path = "pipecat.audio.turn.smart_turn.data"
+            package_path = "lokin.audio.turn.smart_turn.data"
 
             try:
                 import importlib_resources as impresources

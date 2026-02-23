@@ -1,9 +1,3 @@
-#
-# Copyright (c) 2024-2026, Daily
-#
-# SPDX-License-Identifier: BSD 2-Clause License
-#
-
 """OpenAI image generation service implementation.
 
 This module provides integration with OpenAI's DALL-E image generation API
@@ -18,12 +12,12 @@ from loguru import logger
 from openai import AsyncOpenAI
 from PIL import Image
 
-from pipecat.frames.frames import (
+from lokin.frames.frames import (
     ErrorFrame,
     Frame,
     URLImageRawFrame,
 )
-from pipecat.services.image_service import ImageGenService
+from lokin.services.image_service import ImageGenService
 
 
 class OpenAIImageGenService(ImageGenService):

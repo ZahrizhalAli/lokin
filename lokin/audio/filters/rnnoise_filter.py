@@ -66,7 +66,7 @@ class RNNoiseFilter(BaseAudioFilter):
         if self._sample_rate != 48000:
             logger.info(f"RNNoise filter enabling resampling: {self._sample_rate} <-> 48000")
             try:
-                from pipecat.audio.resamplers.soxr_stream_resampler import SOXRStreamAudioResampler
+                from lokin.audio.resamplers.soxr_stream_resampler import SOXRStreamAudioResampler
 
                 self._resampler_in = SOXRStreamAudioResampler(quality=self._resampler_quality)
                 self._resampler_out = SOXRStreamAudioResampler(quality=self._resampler_quality)

@@ -30,10 +30,10 @@ with warnings.catch_warnings():
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from pipecat.frames.frames import DataFrame, FunctionCallResultFrame
+from lokin.frames.frames import DataFrame, FunctionCallResultFrame
 
 if TYPE_CHECKING:
-    from pipecat.services.openai.realtime.context import OpenAIRealtimeLLMContext
+    from lokin.services.openai.realtime.context import OpenAIRealtimeLLMContext
 
 
 @dataclass

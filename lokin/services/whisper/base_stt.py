@@ -1,9 +1,3 @@
-#
-# Copyright (c) 2024-2026, Daily
-#
-# SPDX-License-Identifier: BSD 2-Clause License
-#
-
 """Base class for Whisper-based speech-to-text services.
 
 This module provides common functionality for services implementing the Whisper API
@@ -16,12 +10,12 @@ from loguru import logger
 from openai import AsyncOpenAI
 from openai.types.audio import Transcription
 
-from pipecat.frames.frames import ErrorFrame, Frame, TranscriptionFrame
-from pipecat.services.stt_latency import WHISPER_TTFS_P99
-from pipecat.services.stt_service import SegmentedSTTService
-from pipecat.transcriptions.language import Language, resolve_language
-from pipecat.utils.time import time_now_iso8601
-from pipecat.utils.tracing.service_decorators import traced_stt
+from lokin.frames.frames import ErrorFrame, Frame, TranscriptionFrame
+from lokin.services.stt_latency import WHISPER_TTFS_P99
+from lokin.services.stt_service import SegmentedSTTService
+from lokin.transcriptions.language import Language, resolve_language
+from lokin.utils.time import time_now_iso8601
+from lokin.utils.tracing.service_decorators import traced_stt
 
 
 def language_to_whisper_language(language: Language) -> Optional[str]:

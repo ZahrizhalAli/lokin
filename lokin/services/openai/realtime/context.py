@@ -87,7 +87,7 @@ import json
 
 from loguru import logger
 
-from pipecat.frames.frames import (
+from lokin.frames.frames import (
     Frame,
     FunctionCallResultFrame,
     InterimTranscriptionFrame,
@@ -96,9 +96,9 @@ from pipecat.frames.frames import (
     LLMTextFrame,
     TranscriptionFrame,
 )
-from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
-from pipecat.processors.frame_processor import FrameDirection
-from pipecat.services.openai.llm import (
+from lokin.processors.aggregators.openai_llm_context import OpenAILLMContext
+from lokin.processors.frame_processor import FrameDirection
+from lokin.services.openai.llm import (
     OpenAIAssistantContextAggregator,
     OpenAIUserContextAggregator,
 )

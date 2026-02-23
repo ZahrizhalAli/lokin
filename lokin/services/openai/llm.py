@@ -1,29 +1,23 @@
-#
-# Copyright (c) 2024-2026, Daily
-#
-# SPDX-License-Identifier: BSD 2-Clause License
-#
-
 """OpenAI LLM service implementation with context aggregators."""
 
 import json
 from dataclasses import dataclass
 from typing import Any, Optional
 
-from pipecat.frames.frames import (
+from lokin.frames.frames import (
     FunctionCallCancelFrame,
     FunctionCallInProgressFrame,
     FunctionCallResultFrame,
     UserImageRawFrame,
 )
-from pipecat.processors.aggregators.llm_response import (
+from lokin.processors.aggregators.llm_response import (
     LLMAssistantAggregatorParams,
     LLMAssistantContextAggregator,
     LLMUserAggregatorParams,
     LLMUserContextAggregator,
 )
-from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
-from pipecat.services.openai.base_llm import BaseOpenAILLMService
+from lokin.processors.aggregators.openai_llm_context import OpenAILLMContext
+from lokin.services.openai.base_llm import BaseOpenAILLMService
 
 
 @dataclass

@@ -1,15 +1,9 @@
-#
-# Copyright (c) 2024-2026, Daily
-#
-# SPDX-License-Identifier: BSD 2-Clause License
-#
-
 """Utility functions for extracting probability metrics from STT services."""
 
 import math
 from typing import Optional
 
-from pipecat.frames.frames import TranscriptionFrame
+from lokin.frames.frames import TranscriptionFrame
 
 
 def extract_whisper_probability(frame: TranscriptionFrame) -> Optional[float]:

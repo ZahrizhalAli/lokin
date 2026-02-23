@@ -17,15 +17,15 @@ from statistics import mean
 
 from loguru import logger
 
-from pipecat.frames.frames import (
+from lokin.frames.frames import (
     BotStartedSpeakingFrame,
     CancelFrame,
     EndFrame,
     VADUserStartedSpeakingFrame,
     VADUserStoppedSpeakingFrame,
 )
-from pipecat.observers.base_observer import BaseObserver, FramePushed
-from pipecat.processors.frame_processor import FrameDirection
+from lokin.observers.base_observer import BaseObserver, FramePushed
+from lokin.processors.frame_processor import FrameDirection
 
 
 class UserBotLatencyLogObserver(BaseObserver):

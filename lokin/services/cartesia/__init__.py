@@ -1,12 +1,8 @@
-#
-# Copyright (c) 2024-2026, Daily
-#
-# SPDX-License-Identifier: BSD 2-Clause License
-#
+
 
 import sys
 
-from pipecat.services import DeprecatedModuleProxy
+from lokin.services import DeprecatedModuleProxy
 
 from .stt import *
 from .tts import *

@@ -43,8 +43,104 @@ from lokin.runner.types import RunnerArguments
 from lokin.runner.utils import create_transport
 from lokin.services.cartesia.tts import CartesiaTTSService
 from lokin.services.deepgram.stt import DeepgramSTTService
+from lokin.services.openai.stt import OpenAISTTService
+from lokin.services.openai.tts import OpenAITTSService
 from lokin.services.openai.llm import OpenAILLMService
 from lokin.transports.base_transport import BaseTransport, TransportParams
 from lokin.transports.daily.transport import DailyParams
 
 logger.info("✅ All components loaded successfully!")
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
+
+
+async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
+    logger.info(f"Starting bot")
+
+    # stt = DeepgramSTTService(api_key=os.getenv("DEEPGRAM_API_KEY"))
+    stt = OpenAISTTService(api_key=os.getenv("OPENAI_API_KEY"))
+
+    # tts = CartesiaTTSService(
+    #     api_key=os.getenv("CARTESIA_API_KEY"),
+    #     voice_id="71a7ad14-091c-4e8e-a314-022ece01c121",  # British Reading Lady
+    # )
+
+    tts = OpenAITTSService(api_key=os.getenv("OPENAI_API_KEY"))
+
+
+    llm = OpenAILLMService(api_key=os.getenv("OPENAI_API_KEY"))
+
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a friendly AI assistant. Respond naturally and keep your answers conversational.",
+        },
+    ]
+
+    context = LLMContext(messages)
+    user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
+        context,
+        user_params=LLMUserAggregatorParams(vad_analyzer=SileroVADAnalyzer()),
+    )
+
+    pipeline = Pipeline(
+        [
+            transport.input(),  # Transport user input
+            stt,
+            user_aggregator,  # User responses
+            llm,  # LLM
+            tts,  # TTS
+            transport.output(),  # Transport bot output
+            assistant_aggregator,  # Assistant spoken responses
+        ]
+    )
+
+    task = PipelineTask(
+        pipeline,
+        params=PipelineParams(
+            enable_metrics=True,
+            enable_usage_metrics=True,
+        ),
+    )
+
+    @transport.event_handler("on_client_connected")
+    async def on_client_connected(transport, client):
+        logger.info(f"Client connected")
+        # Kick off the conversation.
+        messages.append({"role": "system", "content": "Say hello and briefly introduce yourself."})
+        await task.queue_frames([LLMRunFrame()])
+
+    @transport.event_handler("on_client_disconnected")
+    async def on_client_disconnected(transport, client):
+        logger.info(f"Client disconnected")
+        await task.cancel()
+
+    runner = PipelineRunner(handle_sigint=runner_args.handle_sigint)
+
+    await runner.run(task)
+
+
+async def bot(runner_args: RunnerArguments):
+    """Main bot entry point for the bot starter."""
+
+    transport_params = {
+        # "daily": lambda: DailyParams(
+        #     audio_in_enabled=True,
+        #     audio_out_enabled=True,
+        # ),
+        "webrtc": lambda: TransportParams(
+            audio_in_enabled=True,
+            audio_out_enabled=True,
+        ),
+    }
+
+    transport = await create_transport(runner_args, transport_params)
+
+    await run_bot(transport, runner_args)
+
+
+if __name__ == "__main__":
+    from lokin.runner.run import main
+
+    main()

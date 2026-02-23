@@ -9,3 +9,4 @@ client/node_modules
 
 # Virtual environments
 .venv
+.env

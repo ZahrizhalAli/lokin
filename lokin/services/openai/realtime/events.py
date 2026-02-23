@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from pipecat.adapters.schemas.tools_schema import ToolsSchema
+from lokin.adapters.schemas.tools_schema import ToolsSchema
 
 #
 # session properties

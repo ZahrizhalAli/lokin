@@ -1,9 +1,3 @@
-#
-# Copyright (c) 2024-2026, Daily
-#
-# SPDX-License-Identifier: BSD 2-Clause License
-#
-
 """Base LLM service implementation for services that use the AsyncOpenAI client."""
 
 import asyncio
@@ -24,8 +18,8 @@ from openai import (
 from openai.types.chat import ChatCompletionChunk, ChatCompletionMessageParam
 from pydantic import BaseModel, Field
 
-from pipecat.adapters.services.open_ai_adapter import OpenAILLMInvocationParams
-from pipecat.frames.frames import (
+from lokin.adapters.services.open_ai_adapter import OpenAILLMInvocationParams
+from lokin.frames.frames import (
     Frame,
     LLMContextFrame,
     LLMFullResponseEndFrame,
@@ -34,15 +28,15 @@ from pipecat.frames.frames import (
     LLMTextFrame,
     LLMUpdateSettingsFrame,
 )
-from pipecat.metrics.metrics import LLMTokenUsage
-from pipecat.processors.aggregators.llm_context import LLMContext
-from pipecat.processors.aggregators.openai_llm_context import (
+from lokin.metrics.metrics import LLMTokenUsage
+from lokin.processors.aggregators.llm_context import LLMContext
+from lokin.processors.aggregators.openai_llm_context import (
     OpenAILLMContext,
     OpenAILLMContextFrame,
 )
-from pipecat.processors.frame_processor import FrameDirection
-from pipecat.services.llm_service import FunctionCallFromLLM, LLMService
-from pipecat.utils.tracing.service_decorators import traced_llm
+from lokin.processors.frame_processor import FrameDirection
+from lokin.services.llm_service import FunctionCallFromLLM, LLMService
+from lokin.utils.tracing.service_decorators import traced_llm
 
 
 class BaseOpenAILLMService(LLMService):

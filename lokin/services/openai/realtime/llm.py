@@ -16,11 +16,11 @@ from typing import Optional
 from loguru import logger
 from PIL import Image
 
-from pipecat.adapters.schemas.tools_schema import ToolsSchema
-from pipecat.adapters.services.open_ai_realtime_adapter import (
+from lokin.adapters.schemas.tools_schema import ToolsSchema
+from lokin.adapters.services.open_ai_realtime_adapter import (
     OpenAIRealtimeLLMAdapter,
 )
-from pipecat.frames.frames import (
+from lokin.frames.frames import (
     AggregationType,
     BotStoppedSpeakingFrame,
     CancelFrame,
@@ -46,22 +46,22 @@ from pipecat.frames.frames import (
     UserStartedSpeakingFrame,
     UserStoppedSpeakingFrame,
 )
-from pipecat.metrics.metrics import LLMTokenUsage
-from pipecat.processors.aggregators.llm_context import LLMContext
-from pipecat.processors.aggregators.llm_response import (
+from lokin.metrics.metrics import LLMTokenUsage
+from lokin.processors.aggregators.llm_context import LLMContext
+from lokin.processors.aggregators.llm_response import (
     LLMAssistantAggregatorParams,
     LLMUserAggregatorParams,
 )
-from pipecat.processors.aggregators.llm_response_universal import LLMContextAggregatorPair
-from pipecat.processors.aggregators.openai_llm_context import (
+from lokin.processors.aggregators.llm_response_universal import LLMContextAggregatorPair
+from lokin.processors.aggregators.openai_llm_context import (
     OpenAILLMContext,
     OpenAILLMContextFrame,
 )
-from pipecat.processors.frame_processor import FrameDirection
-from pipecat.services.llm_service import FunctionCallFromLLM, LLMService
-from pipecat.transcriptions.language import Language
-from pipecat.utils.time import time_now_iso8601
-from pipecat.utils.tracing.service_decorators import traced_openai_realtime, traced_stt
+from lokin.processors.frame_processor import FrameDirection
+from lokin.services.llm_service import FunctionCallFromLLM, LLMService
+from lokin.transcriptions.language import Language
+from lokin.utils.time import time_now_iso8601
+from lokin.utils.tracing.service_decorators import traced_openai_realtime, traced_stt
 
 from . import events
 

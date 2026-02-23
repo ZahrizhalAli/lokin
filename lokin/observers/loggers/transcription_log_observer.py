@@ -12,12 +12,12 @@ allowing developers to monitor speech-to-text activity in real-time.
 
 from loguru import logger
 
-from pipecat.frames.frames import (
+from lokin.frames.frames import (
     InterimTranscriptionFrame,
     TranscriptionFrame,
 )
-from pipecat.observers.base_observer import BaseObserver, FramePushed
-from pipecat.services.stt_service import STTService
+from lokin.observers.base_observer import BaseObserver, FramePushed
+from lokin.services.stt_service import STTService
 
 
 class TranscriptionLogObserver(BaseObserver):

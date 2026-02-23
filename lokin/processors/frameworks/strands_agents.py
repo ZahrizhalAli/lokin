@@ -8,16 +8,16 @@ from typing import Optional
 
 from loguru import logger
 
-from pipecat.frames.frames import (
+from lokin.frames.frames import (
     Frame,
     LLMContextFrame,
     LLMFullResponseEndFrame,
     LLMFullResponseStartFrame,
     LLMTextFrame,
 )
-from pipecat.metrics.metrics import LLMTokenUsage
-from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContextFrame
-from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
+from lokin.metrics.metrics import LLMTokenUsage
+from lokin.processors.aggregators.openai_llm_context import OpenAILLMContextFrame
+from lokin.processors.frame_processor import FrameDirection, FrameProcessor
 
 try:
     from strands import Agent

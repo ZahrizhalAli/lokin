@@ -8,7 +8,7 @@
 
 from loguru import logger
 
-from pipecat.frames.frames import (
+from lokin.frames.frames import (
     FunctionCallInProgressFrame,
     FunctionCallResultFrame,
     LLMContextFrame,
@@ -17,10 +17,10 @@ from pipecat.frames.frames import (
     LLMMessagesFrame,
     LLMTextFrame,
 )
-from pipecat.observers.base_observer import BaseObserver, FramePushed
-from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContextFrame
-from pipecat.processors.frame_processor import FrameDirection
-from pipecat.services.llm_service import LLMService
+from lokin.observers.base_observer import BaseObserver, FramePushed
+from lokin.processors.aggregators.openai_llm_context import OpenAILLMContextFrame
+from lokin.processors.frame_processor import FrameDirection
+from lokin.services.llm_service import LLMService
 
 
 class LLMLogObserver(BaseObserver):

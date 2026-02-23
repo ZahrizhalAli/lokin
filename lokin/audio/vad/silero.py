@@ -140,7 +140,7 @@ class SileroVADAnalyzer(VADAnalyzer):
         logger.debug("Loading Silero VAD model...")
 
         model_name = "silero_vad.onnx"
-        package_path = "pipecat.audio.vad.data"
+        package_path = "lokin.audio.vad.data"
 
         try:
             import importlib_resources as impresources

@@ -1,9 +1,3 @@
-#
-# Copyright (c) 2024-2026, Daily
-#
-# SPDX-License-Identifier: BSD 2-Clause License
-#
-
 """Whisper speech-to-text services with locally-downloaded models.
 
 This module implements Whisper transcription using locally-downloaded models,
@@ -18,11 +12,11 @@ import numpy as np
 from loguru import logger
 from typing_extensions import TYPE_CHECKING, override
 
-from pipecat.frames.frames import ErrorFrame, Frame, TranscriptionFrame
-from pipecat.services.stt_service import SegmentedSTTService
-from pipecat.transcriptions.language import Language, resolve_language
-from pipecat.utils.time import time_now_iso8601
-from pipecat.utils.tracing.service_decorators import traced_stt
+from lokin.frames.frames import ErrorFrame, Frame, TranscriptionFrame
+from lokin.services.stt_service import SegmentedSTTService
+from lokin.transcriptions.language import Language, resolve_language
+from lokin.utils.time import time_now_iso8601
+from lokin.utils.tracing.service_decorators import traced_stt
 
 if TYPE_CHECKING:
     try:

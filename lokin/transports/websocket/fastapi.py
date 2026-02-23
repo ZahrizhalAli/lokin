@@ -21,7 +21,7 @@ from typing import Awaitable, Callable, Optional
 from loguru import logger
 from pydantic import BaseModel
 
-from pipecat.frames.frames import (
+from lokin.frames.frames import (
     CancelFrame,
     EndFrame,
     Frame,
@@ -33,11 +33,11 @@ from pipecat.frames.frames import (
     OutputTransportMessageUrgentFrame,
     StartFrame,
 )
-from pipecat.processors.frame_processor import FrameDirection
-from pipecat.serializers.base_serializer import FrameSerializer
-from pipecat.transports.base_input import BaseInputTransport
-from pipecat.transports.base_output import BaseOutputTransport
-from pipecat.transports.base_transport import BaseTransport, TransportParams
+from lokin.processors.frame_processor import FrameDirection
+from lokin.serializers.base_serializer import FrameSerializer
+from lokin.transports.base_input import BaseInputTransport
+from lokin.transports.base_output import BaseOutputTransport
+from lokin.transports.base_transport import BaseTransport, TransportParams
 
 try:
     from fastapi import WebSocket

@@ -17,9 +17,9 @@ from typing import Dict, Optional, Set, Tuple, Type, Union
 
 from loguru import logger
 
-from pipecat.frames.frames import Frame
-from pipecat.observers.base_observer import BaseObserver, FramePushed
-from pipecat.processors.frame_processor import FrameDirection
+from lokin.frames.frames import Frame
+from lokin.observers.base_observer import BaseObserver, FramePushed
+from lokin.processors.frame_processor import FrameDirection
 
 
 class FrameEndpoint(Enum):
