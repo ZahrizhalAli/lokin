@@ -136,18 +136,6 @@ def _get_bot_module():
         "Could not find 'bot' function. Make sure your bot file has a 'bot' function."
     )
 
-
-async def _run_telephony_bot(websocket: WebSocket, args: argparse.Namespace):
-    """Run a bot for telephony transports."""
-    bot_module = _get_bot_module()
-
-    # Just pass the WebSocket - let the bot handle parsing
-    runner_args = WebSocketRunnerArguments(websocket=websocket)
-    runner_args.cli_args = args
-
-    await bot_module.bot(runner_args)
-
-
 def _create_server_app(args: argparse.Namespace):
     """Create FastAPI app with transport-specific routes."""
     app = FastAPI()
@@ -348,15 +336,6 @@ def _add_lifespan_to_app(app: FastAPI, new_lifespan):
     else:
         # No existing lifespan, use the new one
         app.router.lifespan_context = new_lifespan
-
-
-
-
-
-
-
-
-
 
 def _validate_and_clean_proxy(proxy: str) -> str:
     """Validate and clean proxy hostname, removing protocol if present."""

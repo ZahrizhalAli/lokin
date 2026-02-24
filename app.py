@@ -1,4 +1,4 @@
-"""Lokin Quickstart.
+"""Lokin Quickstart with Pipecat UI.
 
 The example runs a simple voice AI bot that you can connect to using your
 browser and speak with it.
@@ -17,7 +17,7 @@ import os
 
 from loguru import logger
 
-print("🚀 Starting Pipecat bot...")
+print("🚀 Starting Lokin bot...")
 print("⏳ Loading models and imports (20 seconds, first run only)\n")
 
 logger.info("Loading Silero VAD model...")
@@ -64,7 +64,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     #     voice_id="71a7ad14-091c-4e8e-a314-022ece01c121",  # British Reading Lady
     # )
 
-    tts = OpenAITTSService(api_key=os.getenv("OPENAI_API_KEY"))
+    tts = OpenAITTSService(api_key=os.getenv("OPENAI_API_KEY"), speed=1.0)
 
 
     llm = OpenAILLMService(api_key=os.getenv("OPENAI_API_KEY"))
@@ -125,7 +125,7 @@ async def bot(runner_args: RunnerArguments):
     transport_params = {
         "webrtc": lambda: TransportParams(
             audio_in_enabled=True,
-            audio_out_enabled=True,
+            audio_out_enabled=True
         ),
     }
 
