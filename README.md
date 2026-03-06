@@ -7,18 +7,11 @@ git clone https://github.com/ZahrizhalAli/lokin.git
 cd lokin
 ```
 
-2. **Build the Client**
+2. **Lokin Client**
 
-The Python package serves a built React client, so you need to build it first:
+We introduce a new Lokin UI Client.
 
-```bash
-cd client
-npm install
-npm run build
-cd ..
-```
-
-This creates the `client/dist/` directory that the Python package will serve.
+Located in the `ui/dist/` directory that the UI will serve.
 
 3. **Try the Sample App**
 

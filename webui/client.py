@@ -6,8 +6,8 @@ from fastapi.staticfiles import StaticFiles
 # Define possible paths to the dist directory
 base_dir = os.path.dirname(__file__)
 possible_dist_paths = [
-    os.path.abspath(os.path.join(base_dir, "client", "dist")), # in prod
-    os.path.abspath(os.path.join(base_dir, "..", "client", "dist")),  # in dev
+    os.path.abspath(os.path.join(base_dir, "ui", "dist")), # in prod
+    os.path.abspath(os.path.join(base_dir, "..", "ui", "dist")),  # in dev
 ]
 
 dist_dir = None
