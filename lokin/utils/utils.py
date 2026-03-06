@@ -1,7 +1,7 @@
 """Utility functions for object identification and counting.
 
 This module provides thread-safe utilities for generating unique identifiers
-and maintaining per-class instance counts across the Pipecat framework.
+and maintaining per-class instance counts across the framework.
 """
 
 import collections

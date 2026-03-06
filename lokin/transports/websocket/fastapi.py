@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD 2-Clause License
 #
 
-"""FastAPI WebSocket transport implementation for Pipecat.
+"""FastAPI WebSocket transport implementation.
 
 This module provides WebSocket-based transport for real-time audio/video streaming
 using FastAPI and WebSocket connections. Supports binary and text serialization
@@ -44,9 +44,7 @@ try:
     from starlette.websockets import WebSocketState
 except ModuleNotFoundError as e:
     logger.error(f"Exception: {e}")
-    logger.error(
-        "In order to use FastAPI websockets, you need to `pip install pipecat-ai[websocket]`."
-    )
+
     raise Exception(f"Missing module: {e}")
 
 

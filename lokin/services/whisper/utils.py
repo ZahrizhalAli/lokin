@@ -23,8 +23,8 @@ def extract_whisper_probability(frame: TranscriptionFrame) -> Optional[float]:
 
     Example::
 
-        from pipecat.services.groq.stt import GroqSTTService
-        from pipecat.services.whisper.utils import extract_whisper_probability
+        from lokin.services.groq.stt import GroqSTTService
+        from lokin.services.whisper.utils import extract_whisper_probability
 
         stt = GroqSTTService(include_prob_metrics=True)
         # ... use stt in pipeline ...
@@ -59,8 +59,8 @@ def extract_openai_gpt4o_probability(frame: TranscriptionFrame) -> Optional[floa
 
     Example::
 
-        from pipecat.services.openai.stt import OpenAISTTService
-        from pipecat.services.whisper.utils import extract_openai_gpt4o_probability
+        from lokin.services.openai.stt import OpenAISTTService
+        from lokin.services.whisper.utils import extract_openai_gpt4o_probability
 
         stt = OpenAISTTService(model="gpt-4o-transcribe", include_prob_metrics=True)
         # ... use stt in pipeline ...
@@ -97,8 +97,8 @@ def extract_deepgram_probability(frame: TranscriptionFrame) -> Optional[float]:
 
     Example::
 
-        from pipecat.services.deepgram.stt import DeepgramSTTService
-        from pipecat.services.whisper.utils import extract_deepgram_probability
+        from lokin.services.deepgram.stt import DeepgramSTTService
+        from lokin.services.whisper.utils import extract_deepgram_probability
 
         stt = DeepgramSTTService()
         # ... use stt in pipeline ...

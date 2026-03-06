@@ -16,7 +16,6 @@ try:
     import pvkoala
 except ModuleNotFoundError as e:
     logger.error(f"Exception: {e}")
-    logger.error("In order to use the Koala filter, you need to `pip install pipecat-ai[koala]`.")
     raise Exception(f"Missing module: {e}")
 
 

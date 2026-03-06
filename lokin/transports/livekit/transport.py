@@ -41,7 +41,6 @@ try:
     from tenacity import retry, stop_after_attempt, wait_exponential
 except ModuleNotFoundError as e:
     logger.error(f"Exception: {e}")
-    logger.error("In order to use LiveKit, you need to `pip install pipecat-ai[livekit]`.")
     raise Exception(f"Missing module: {e}")
 
 # DTMF mapping according to RFC 4733
@@ -294,7 +293,7 @@ class LiveKitTransportClient:
                     self._out_sample_rate, self._params.audio_out_channels
                 )
                 self._audio_track = rtc.LocalAudioTrack.create_audio_track(
-                    "pipecat-audio", self._audio_source
+                    "lokin-audio", self._audio_source
                 )
                 options = rtc.TrackPublishOptions()
                 options.source = rtc.TrackSource.SOURCE_MICROPHONE
@@ -609,7 +608,7 @@ class LiveKitInputTransport(BaseInputTransport):
     """Handles incoming media streams and events from LiveKit rooms.
 
     Processes incoming audio streams from room participants and forwards them
-    as Pipecat frames, including audio resampling and VAD integration.
+    as frames, including audio resampling and VAD integration.
     """
 
     def __init__(

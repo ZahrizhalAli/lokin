@@ -1,4 +1,4 @@
-"""System clock implementation for Pipecat."""
+"""System clock implementation for Lokin."""
 
 import time
 

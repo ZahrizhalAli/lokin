@@ -1,4 +1,4 @@
-"""Base observer classes for monitoring frame flow in the Pipecat pipeline.
+"""Base observer classes for monitoring frame flow in the Lokin pipeline.
 
 This module provides the foundation for observing frame transfers between
 processors without modifying the pipeline structure. Observers can be used

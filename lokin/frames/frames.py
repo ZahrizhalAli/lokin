@@ -69,8 +69,8 @@ class DeprecatedKeypadEntry:
         with warnings.catch_warnings():
             warnings.simplefilter("always")
             warnings.warn(
-                "`pipecat.frames.frames.KeypadEntry` is deprecated and will be removed in a future version. "
-                "Use `pipecat.audio.dtmf.types.KeypadEntry` instead.",
+                "`lokin.frames.frames.KeypadEntry` is deprecated and will be removed in a future version. "
+                "Use `lokin.audio.dtmf.types.KeypadEntry` instead.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -107,7 +107,7 @@ def format_pts(pts: Optional[int]):
 
 @dataclass
 class Frame:
-    """Base frame class for all frames in the Pipecat pipeline.
+    """Base frame class for all frames in the pipeline.
 
     All frames inherit from this base class and automatically receive
     unique identifiers, names, and metadata support.

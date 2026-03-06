@@ -1,6 +1,6 @@
 """
 This module provides functions to check availability and configure OpenTelemetry
-tracing for Pipecat applications. It handles the optional nature of OpenTelemetry
+tracing for this applications. It handles the optional nature of OpenTelemetry
 dependencies and provides a safe setup process.
 """
 
@@ -28,7 +28,7 @@ def is_tracing_available() -> bool:
 
 
 def setup_tracing(
-    service_name: str = "pipecat",
+    service_name: str = "lokin",
     exporter=None,  # User-provided exporter
     console_export: bool = False,
 ) -> bool:

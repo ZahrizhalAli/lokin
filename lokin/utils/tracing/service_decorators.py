@@ -1,4 +1,4 @@
-"""Service-specific OpenTelemetry tracing decorators for Pipecat.
+"""Service-specific OpenTelemetry tracing decorators.
 
 This module provides specialized decorators that automatically capture
 rich information about service execution including configuration,

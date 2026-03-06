@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD 2-Clause License
 #
 
-"""Metrics logging observer for Pipecat.
+"""Metrics logging observer.
 
 This module provides an observer that logs metrics frames to the console,
 allowing developers to monitor performance metrics, token usage, and other
@@ -49,7 +49,7 @@ class MetricsLogObserver(BaseObserver):
 
         Log only LLM and TTS metrics::
 
-            from pipecat.metrics.metrics import LLMUsageMetricsData, TTSUsageMetricsData
+            from lokin.metrics.metrics import LLMUsageMetricsData, TTSUsageMetricsData
             observers = [
                 MetricsLogObserver(
                     include_metrics={LLMUsageMetricsData, TTSUsageMetricsData}

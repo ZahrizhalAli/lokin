@@ -17,9 +17,7 @@ try:
     from transformers import AutoFeatureExtractor
 except ModuleNotFoundError as e:
     logger.error(f"Exception: {e}")
-    logger.error(
-        "In order to use the LocalSmartTurnAnalyzer, you need to `pip install pipecat-ai[local-smart-turn]`."
-    )
+
     raise Exception(f"Missing module: {e}")
 
 

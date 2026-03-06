@@ -2,7 +2,7 @@
 
 This module provides specialized functions for adding service-specific
 attributes to OpenTelemetry spans, following standard semantic conventions
-where applicable and Pipecat-specific conventions for additional context.
+where applicable and specific conventions for additional context.
 """
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional

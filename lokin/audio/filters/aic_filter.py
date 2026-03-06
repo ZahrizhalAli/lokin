@@ -2,7 +2,7 @@
 
 This module provides an audio filter implementation using ai-coustics' AIC SDK to
 enhance audio streams in real time. It mirrors the structure of other filters like
-the Koala filter and integrates with Pipecat's input transport pipeline.
+the Koala filter and integrates with Lokin's input transport pipeline.
 
 Classes:
     AICFilter: For aic-sdk (uses 'aic_sdk' module)
@@ -58,7 +58,7 @@ class AICFilter(BaseAudioFilter):
         Raises:
             ValueError: If neither model_id nor model_path is provided.
         """
-        # # Set SDK ID for telemetry identification (eg. 6 = pipecat)
+        # # Set SDK ID for telemetry identification
         # set_sdk_id(6)
 
         if model_id is None and model_path is None:
@@ -71,7 +71,7 @@ class AICFilter(BaseAudioFilter):
         self._model_id = model_id
         self._model_path = model_path
         self._model_download_dir = model_download_dir or (
-            Path.home() / ".cache" / "pipecat" / "aic-models"
+            Path.home() / ".cache" / "lokin" / "aic-models"
         )
 
         self._bypass = False

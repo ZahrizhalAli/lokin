@@ -10,7 +10,7 @@ from typing import Any, Mapping
 
 
 class BaseTextFilter(ABC):
-    """Abstract base class for text filters in the Pipecat framework.
+    """Abstract base class for text filters in the framework.
 
     Text filters are responsible for modifying text content as it flows through
     the processing pipeline. They support dynamic settings updates and can handle

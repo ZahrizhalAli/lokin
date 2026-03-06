@@ -17,9 +17,7 @@ try:
     from transformers import WhisperFeatureExtractor
 except ModuleNotFoundError as e:
     logger.error(f"Exception: {e}")
-    logger.error(
-        "In order to use LocalSmartTurnAnalyzerV3, you need to `pip install pipecat-ai[local-smart-turn-v3]`."
-    )
+
     raise Exception(f"Missing module: {e}")
 
 
@@ -43,7 +41,7 @@ class LocalSmartTurnAnalyzerV3(BaseSmartTurn):
         """
         super().__init__(**kwargs)
 
-        self._log_data = env_truthy("PIPECAT_SMART_TURN_LOG_DATA", default=False)
+        self._log_data = env_truthy("LOKIN_SMART_TURN_LOG_DATA", default=False)
 
         if not smart_turn_model_path:
             # Load bundled model

@@ -47,17 +47,17 @@ class DebugLogObserver(BaseObserver):
 
         Log specific frame types from any source/destination::
 
-            from pipecat.frames.frames import LLMTextFrame, TranscriptionFrame
+            from lokin.frames.frames import LLMTextFrame, TranscriptionFrame
             observers=[
                 DebugLogObserver(frame_types=(LLMTextFrame,TranscriptionFrame,)),
             ]
 
         Log frames with specific source/destination filters::
 
-            from pipecat.frames.frames import InterruptionFrame, UserStartedSpeakingFrame, LLMTextFrame
-            from pipecat.observers.loggers.debug_log_observer import DebugLogObserver, FrameEndpoint
-            from pipecat.transports.base_output import BaseOutputTransport
-            from pipecat.services.stt_service import STTService
+            from lokin.frames.frames import InterruptionFrame, UserStartedSpeakingFrame, LLMTextFrame
+            from lokin.observers.loggers.debug_log_observer import DebugLogObserver, FrameEndpoint
+            from lokin.transports.base_output import BaseOutputTransport
+            from lokin.services.stt_service import STTService
 
             observers=[
                 DebugLogObserver(

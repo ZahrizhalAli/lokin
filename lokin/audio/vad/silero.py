@@ -1,4 +1,4 @@
-"""Silero Voice Activity Detection (VAD) implementation for Pipecat.
+"""Silero Voice Activity Detection (VAD) implementation for Lokin.
 
 This module provides a VAD analyzer based on the Silero VAD ONNX model,
 which can detect voice activity in audio streams with high accuracy.

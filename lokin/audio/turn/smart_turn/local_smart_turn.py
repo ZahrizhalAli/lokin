@@ -17,9 +17,7 @@ try:
     from transformers import AutoFeatureExtractor, Wav2Vec2BertForSequenceClassification
 except ModuleNotFoundError as e:
     logger.error(f"Exception: {e}")
-    logger.error(
-        "In order to use the LocalSmartTurnAnalyzer, you need to `pip install pipecat-ai[local-smart-turn]`."
-    )
+
     raise Exception(f"Missing module: {e}")
 
 
@@ -56,7 +54,7 @@ class LocalSmartTurnAnalyzer(BaseSmartTurn):
 
         if not smart_turn_model_path:
             # Define the path to the pretrained model on Hugging Face
-            smart_turn_model_path = "pipecat-ai/smart-turn"
+            smart_turn_model_path = "lokin/smart-turn"
 
         logger.debug("Loading Local Smart Turn model...")
         # Load the pretrained model for sequence classification

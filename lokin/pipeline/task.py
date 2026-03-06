@@ -972,7 +972,7 @@ class PipelineTask(BasePipelineTask):
         return True
 
     async def _load_setup_files(self):
-        """Dynamically setup pipeline task from files listed in PIPECAT_SETUP_FILES.
+        """Dynamically setup pipeline task from files listed in LOKIN_SETUP_FILES.
 
         Each file should contain a `setup_pipeline_task(task)` async function
         that receives the `PipelineTask` instance and can perform any custom

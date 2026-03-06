@@ -15,7 +15,7 @@ class MinWordsInterruptionStrategy(BaseInterruptionStrategy):
     .. deprecated:: 0.0.99
 
         This class is deprecated, use
-        `pipecat.turns.user_start.MinWordsUserTurnStartStrategy` with `PipelineTask`'s
+        `lokin.turns.user_start.MinWordsUserTurnStartStrategy` with `PipelineTask`'s
         new `user_turn_strategies` parameter instead.
 
     """

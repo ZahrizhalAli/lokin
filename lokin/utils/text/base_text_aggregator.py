@@ -48,7 +48,7 @@ class Aggregation:
 
 
 class BaseTextAggregator(ABC):
-    """Base class for text aggregators in the Pipecat framework.
+    """Base class for text aggregators in the framework.
 
     Text aggregators are usually used by the TTS service to aggregate LLM tokens
     and decide when the aggregated text should be pushed to the TTS service.

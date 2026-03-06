@@ -43,7 +43,6 @@ try:
     from av import AudioFrame, AudioResampler, VideoFrame
 except ModuleNotFoundError as e:
     logger.error(f"Exception: {e}")
-    logger.error("In order to use the SmallWebRTC, you need to `pip install pipecat-ai[webrtc]`.")
     raise Exception(f"Missing module: {e}")
 
 CAM_VIDEO_SOURCE = "camera"
