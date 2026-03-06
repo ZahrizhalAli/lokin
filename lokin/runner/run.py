@@ -26,7 +26,7 @@ Single transport example::
         await run_pipeline(transport)
 
     if __name__ == "__main__":
-        from pipecat.runner.run import main
+        from lokin.runner.run import main
         main()
 
 Multiple transport example::
@@ -244,7 +244,7 @@ def _setup_webrtc_routes(app: FastAPI, args: argparse.Namespace):
 
     @app.post("/start")
     async def rtvi_start(request: Request):
-        """Mimic Pipecat Cloud's /start endpoint."""
+        """Mimic Lokin Cloud's /start endpoint."""
         # Parse the request body
         try:
             request_data = await request.json()
@@ -253,7 +253,7 @@ def _setup_webrtc_routes(app: FastAPI, args: argparse.Namespace):
             logger.error(f"Failed to parse request body: {e}")
             request_data = {}
 
-        # Store session info immediately in memory, replicate the behavior expected on Pipecat Cloud
+        # Store session info immediately in memory, replicate the behavior expected on Cloud
         session_id = str(uuid.uuid4())
         active_sessions[session_id] = request_data.get("body", {})
 
@@ -272,7 +272,7 @@ def _setup_webrtc_routes(app: FastAPI, args: argparse.Namespace):
     async def proxy_request(
         session_id: str, path: str, request: Request, background_tasks: BackgroundTasks
     ):
-        """Mimic Pipecat Cloud's proxy."""
+        """Mimic Cloud's proxy."""
         active_session = active_sessions.get(session_id)
         if active_session is None:
             return Response(content="Invalid or not-yet-ready session_id", status_code=404)
@@ -374,7 +374,7 @@ def runner_port() -> int:
 
 
 def main(parser: Optional[argparse.ArgumentParser] = None):
-    """Start the Pipecat development runner.
+    """Start the development runner.
 
     Parses command-line arguments and starts a FastAPI server configured
     for the specified transport type.
@@ -404,7 +404,7 @@ def main(parser: Optional[argparse.ArgumentParser] = None):
     global RUNNER_DOWNLOADS_FOLDER, RUNNER_HOST, RUNNER_PORT
 
     if not parser:
-        parser = argparse.ArgumentParser(description="Pipecat Development Runner")
+        parser = argparse.ArgumentParser(description="Lokin Development Runner")
     parser.add_argument("--host", type=str, default=RUNNER_HOST, help="Host address")
     parser.add_argument("--port", type=int, default=RUNNER_PORT, help="Port number")
     parser.add_argument(

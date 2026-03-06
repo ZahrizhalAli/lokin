@@ -6,7 +6,7 @@
     It now uses `LLMContext` and `LLMContextAggregatorPair`.
     Using the new patterns should allow you to not need types from this module.
 
-    See deprecation warning in pipecat.services.openai.realtime.context for
+    See deprecation warning in lokin.services.openai.realtime.context for
     more details.
 """
 

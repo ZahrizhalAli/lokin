@@ -371,7 +371,7 @@ class RTVIMessage(BaseModel):
 
 
 #
-# Pipecat -> Client responses and messages.
+# Lokin -> Client responses and messages.
 #
 
 
@@ -1647,7 +1647,7 @@ class RTVIProcessor(FrameProcessor):
 
         Args:
             about: Optional information about the bot to include in the ready message.
-                   If left as None, the Pipecat library and version will be used.
+                   If left as None, the library and version will be used.
         """
         self._bot_ready = True
         # Only call the (deprecated) _update_config method if the we're using a
@@ -2094,7 +2094,7 @@ class RTVIProcessor(FrameProcessor):
 
         Args:
             about: Optional information about the bot to include in the ready message.
-                   If left as None, the pipecat library and version will be used.
+                   If left as None, the library and version will be used.
         """
         config = None
         if self._client_version and self._client_version[0] < 1:

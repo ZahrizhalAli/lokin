@@ -9,7 +9,7 @@
 .. deprecated:: 0.0.92
     OpenAI Realtime no longer uses types from this module under the hood.
 
-    It now works more like most LLM services in Pipecat, relying on updates to
+    It now works more like most LLM services in Lokin, relying on updates to
     its context, pushed by context aggregators, to update its internal state.
 
     Listen for ``LLMContextFrame`` s for context updates.
@@ -20,9 +20,9 @@ import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("always")
     warnings.warn(
-        "Types in pipecat.services.openai.realtime.frames are deprecated. \n"
+        "Types in lokin.services.openai.realtime.frames are deprecated. \n"
         "OpenAI Realtime no longer uses types from this module under the hood. \n\n"
-        "It now works more like other LLM services in Pipecat, relying on updates to \n"
+        "It now works more like other LLM services in Lokin, relying on updates to \n"
         "its context, pushed by context aggregators, to update its internal state.\n\n"
         "Listen for `LLMContextFrame`s for context updates.\n"
     )

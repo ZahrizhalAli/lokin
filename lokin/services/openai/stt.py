@@ -72,7 +72,7 @@ class OpenAISTTService(BaseWhisperSTTService):
             prompt: Optional text to guide the model's style or continue a previous segment.
             temperature: Optional sampling temperature between 0 and 1. Defaults to 0.0.
             ttfs_p99_latency: P99 latency from speech end to final transcript in seconds.
-                Override for your deployment. See https://github.com/pipecat-ai/stt-benchmark
+                Override for your deployment.
             **kwargs: Additional arguments passed to BaseWhisperSTTService.
         """
         super().__init__(
@@ -188,14 +188,14 @@ class OpenAIRealtimeSTTService(WebsocketSTTService):
                 speech is detected by server-side VAD. Only applies when
                 turn detection is enabled. Defaults to True.
             ttfs_p99_latency: P99 latency from speech end to final transcript in seconds.
-                Override for your deployment. See https://github.com/pipecat-ai/stt-benchmark
+                Override for your deployment.
             **kwargs: Additional arguments passed to parent
                 WebsocketSTTService.
         """
         if websocket_connect is None:
             raise ImportError(
                 "websockets is required for OpenAIRealtimeSTTService. "
-                "Install it with: pip install pipecat-ai[openai]"
+                "Install it with: pip install lokin[openai]"
             )
 
         super().__init__(

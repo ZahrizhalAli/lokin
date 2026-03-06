@@ -13,7 +13,7 @@ from lokin.audio.filters.base_audio_filter import BaseAudioFilter
 from lokin.frames.frames import FilterControlFrame, FilterEnableFrame
 
 try:
-    from pipecat_ai_krisp.audio.krisp_processor import KrispAudioProcessor
+    from lokin.audio.krisp_processor import KrispAudioProcessor
 except ModuleNotFoundError as e:
     logger.error(f"Exception: {e}")
     raise Exception(f"Missing module: {e}")

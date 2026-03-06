@@ -1,6 +1,6 @@
 """Genesys AudioHook Serializer.
 
-This module provides a serializer for integrating Pipecat pipelines with
+This module provides a serializer for integrating our pipelines with
 Genesys Cloud Contact Center via the AudioHook protocol.
 
 Features:
@@ -82,7 +82,7 @@ class AudioHookMediaFormat(str, Enum):
 class GenesysAudioHookSerializer(FrameSerializer):
     """Serializer for Genesys AudioHook WebSocket protocol.
 
-    This serializer handles converting between Pipecat frames and Genesys
+    This serializer handles converting between Lokin frames and Genesys
     AudioHook protocol messages. It supports:
 
     - Bidirectional audio streaming (PCMU at 8kHz)
@@ -174,7 +174,6 @@ class GenesysAudioHookSerializer(FrameSerializer):
         self._sample_rate = 0  # Pipeline input rate, set in setup()
         self._session_id = str(uuid.uuid4())
 
-        # Use Pipecat's official resampler if needed (SOXR)
         # Only used for TTS output (16kHz → 8kHz), input goes without resampling
         self._input_resampler = SOXRStreamAudioResampler()
         self._output_resampler = SOXRStreamAudioResampler()
@@ -554,7 +553,7 @@ class GenesysAudioHookSerializer(FrameSerializer):
         return msg
 
     async def serialize(self, frame: Frame) -> str | bytes | None:
-        """Serializes a Pipecat frame to Genesys AudioHook format.
+        """Serializes a frame to Genesys AudioHook format.
 
         Handles conversion of various frame types to AudioHook messages:
         - AudioRawFrame -> Binary PCMU audio data (resampled to 8kHz)
@@ -563,7 +562,7 @@ class GenesysAudioHookSerializer(FrameSerializer):
         - OutputTransportMessageFrame -> Pass-through JSON
 
         Args:
-            frame: The Pipecat frame to serialize.
+            frame: The Lokin frame to serialize.
 
         Returns:
             Serialized data as string (JSON) or bytes (audio), or None if
@@ -619,7 +618,7 @@ class GenesysAudioHookSerializer(FrameSerializer):
         return None
 
     async def deserialize(self, data: str | bytes) -> Frame | None:
-        """Deserializes Genesys AudioHook data to Pipecat frames.
+        """Deserializes Genesys AudioHook data to the frames.
 
         Handles:
         - Binary data -> InputAudioRawFrame (converted from PCMU to PCM)
@@ -638,7 +637,7 @@ class GenesysAudioHookSerializer(FrameSerializer):
             data: The raw WebSocket data from Genesys (binary audio or JSON text).
 
         Returns:
-            A Pipecat frame to process, or None if handled internally.
+            A Lokin frame to process, or None if handled internally.
         """
         # Binary data = audio
         if isinstance(data, bytes):

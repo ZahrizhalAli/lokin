@@ -18,12 +18,11 @@ try:
     from langchain_core.messages import AIMessageChunk
     from langchain_core.runnables import Runnable
 except ModuleNotFoundError as e:
-    logger.error("In order to use Langchain, you need to `pip install pipecat-ai[langchain]`. ")
     raise Exception(f"Missing module: {e}")
 
 
 class LangchainProcessor(FrameProcessor):
-    """Processor that integrates Langchain runnables with Pipecat's frame pipeline.
+    """Processor that integrates Langchain runnables with Lokin's frame pipeline.
 
     This processor takes LLM message frames, extracts the latest user message,
     and processes it through a Langchain runnable chain. The response is streamed

@@ -15,7 +15,7 @@ from pydantic import BaseModel
 class DialinSettings(BaseModel):
     """Dial-in settings from the Daily webhook.
 
-    This model matches the structure sent by Pipecat Cloud and Daily.co webhooks
+    This model matches the structure sent by Cloud and Daily.co webhooks
     for incoming PSTN/SIP calls.
 
     Parameters:
@@ -37,7 +37,7 @@ class DailyDialinRequest(BaseModel):
     """Request data for Daily PSTN dial-in requests.
 
     This is the structure passed in runner_args.body for dial-in calls.
-    It matches the payload structure from Pipecat Cloud's dial-in webhook handler.
+    It matches the payload structure from Cloud's dial-in webhook handler.
 
     Parameters:
         dialin_settings: Dial-in configuration including call_id, call_domain, To, From

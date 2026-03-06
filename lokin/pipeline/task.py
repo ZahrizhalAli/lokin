@@ -980,7 +980,7 @@ class PipelineTask(BasePipelineTask):
         configuration).
 
         """
-        setup_files = [f for f in os.environ.get("PIPECAT_SETUP_FILES", "").split(":") if f]
+        setup_files = [f for f in os.environ.get("LOKIN_SETUP_FILES", "").split(":") if f]
         for f in setup_files:
             try:
                 path = Path(f).resolve()
@@ -1004,15 +1004,15 @@ class PipelineTask(BasePipelineTask):
                 logger.error(f"{self} error running external setup from {f}: {e}")
 
     async def _load_observer_files(self):
-        """Dynamically load observers from files listed in PIPECAT_OBSERVER_FILES."""
-        observer_files = [f for f in os.environ.get("PIPECAT_OBSERVER_FILES", "").split(":") if f]
+        """Dynamically load observers from files listed in LOKIN_OBSERVER_FILES."""
+        observer_files = [f for f in os.environ.get("LOKIN_OBSERVER_FILES", "").split(":") if f]
         for f in observer_files:
             import warnings
 
             with warnings.catch_warnings():
                 warnings.simplefilter("always")
                 warnings.warn(
-                    "Observer files (and environment variable `PIPECAT_OBSERVER_FILES`) is deprecated, use setup files instead (and `PIPECAT_SETUP_FILES`) instead.",
+                    "Observer files (and environment variable `LOKIN_OBSERVER_FILES`) is deprecated, use setup files instead (and `LOKIN_SETUP_FILES`) instead.",
                     DeprecationWarning,
                 )
 

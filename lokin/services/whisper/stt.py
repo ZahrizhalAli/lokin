@@ -23,14 +23,12 @@ if TYPE_CHECKING:
         from faster_whisper import WhisperModel
     except ModuleNotFoundError as e:
         logger.error(f"Exception: {e}")
-        logger.error("In order to use Whisper, you need to `pip install pipecat-ai[whisper]`.")
         raise Exception(f"Missing module: {e}")
 
     try:
         import mlx_whisper  # noqa: F401
     except ModuleNotFoundError as e:
         logger.error(f"Exception: {e}")
-        logger.error("In order to use Whisper, you need to `pip install pipecat-ai[mlx-whisper]`.")
         raise Exception(f"Missing module: {e}")
 
 
@@ -89,7 +87,7 @@ class MLXModel(Enum):
 
 
 def language_to_whisper_language(language: Language) -> Optional[str]:
-    """Maps pipecat Language enum to Whisper language codes.
+    """Maps lokin Language enum to Whisper language codes.
 
     Args:
         language: A Language enum value representing the input language.
@@ -218,7 +216,7 @@ class WhisperSTTService(SegmentedSTTService):
         return True
 
     def language_to_service_language(self, language: Language) -> Optional[str]:
-        """Convert from pipecat Language to Whisper language code.
+        """Convert from lokin Language to Whisper language code.
 
         Args:
             language: The Language enum value to convert.
@@ -254,7 +252,6 @@ class WhisperSTTService(SegmentedSTTService):
             logger.debug("Loaded Whisper model")
         except ModuleNotFoundError as e:
             logger.error(f"Exception: {e}")
-            logger.error("In order to use Whisper, you need to `pip install pipecat-ai[whisper]`.")
             self._model = None
 
     @traced_stt

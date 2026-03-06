@@ -727,19 +727,19 @@ class LiveKitInputTransport(BaseInputTransport):
         async for audio_data in audio_iterator:
             if audio_data:
                 audio_frame_event, participant_id = audio_data
-                pipecat_audio_frame = await self._convert_livekit_audio_to_pipecat(
+                lokin_audio_frame = await self._convert_livekit_audio_to_lokin(
                     audio_frame_event
                 )
 
                 # Skip frames with no audio data
-                if len(pipecat_audio_frame.audio) == 0:
+                if len(lokin_audio_frame.audio) == 0:
                     continue
 
                 input_audio_frame = UserAudioRawFrame(
                     user_id=participant_id,
-                    audio=pipecat_audio_frame.audio,
-                    sample_rate=pipecat_audio_frame.sample_rate,
-                    num_channels=pipecat_audio_frame.num_channels,
+                    audio=lokin_audio_frame.audio,
+                    sample_rate=lokin_audio_frame.sample_rate,
+                    num_channels=lokin_audio_frame.num_channels,
                 )
                 await self.push_audio_frame(input_audio_frame)
 
@@ -750,26 +750,26 @@ class LiveKitInputTransport(BaseInputTransport):
         async for video_data in video_iterator:
             if video_data:
                 video_frame_event, participant_id = video_data
-                pipecat_video_frame = await self._convert_livekit_video_to_pipecat(
+                lokin_video_frame = await self._convert_livekit_video_to_lokin(
                     video_frame_event=video_frame_event
                 )
 
                 # Skip frames with no video data
-                if len(pipecat_video_frame.image) == 0:
+                if len(lokin_video_frame.image) == 0:
                     continue
 
                 input_video_frame = UserImageRawFrame(
                     user_id=participant_id,
-                    image=pipecat_video_frame.image,
-                    size=pipecat_video_frame.size,
-                    format=pipecat_video_frame.format,
+                    image=lokin_video_frame.image,
+                    size=lokin_video_frame.size,
+                    format=lokin_video_frame.format,
                 )
                 await self.push_video_frame(input_video_frame)
 
-    async def _convert_livekit_audio_to_pipecat(
+    async def _convert_livekit_audio_to_lokin(
         self, audio_frame_event: rtc.AudioFrameEvent
     ) -> AudioRawFrame:
-        """Convert LiveKit audio frame to Pipecat audio frame."""
+        """Convert LiveKit audio frame to audio frame."""
         audio_frame = audio_frame_event.frame
 
         audio_data = await self._resampler.resample(
@@ -782,11 +782,11 @@ class LiveKitInputTransport(BaseInputTransport):
             num_channels=audio_frame.num_channels,
         )
 
-    async def _convert_livekit_video_to_pipecat(
+    async def _convert_livekit_video_to_lokin(
         self,
         video_frame_event: rtc.VideoFrameEvent,
     ) -> ImageRawFrame:
-        """Convert LiveKit video frame to Pipecat video frame."""
+        """Convert LiveKit video frame to video frame."""
         rgb_frame = video_frame_event.frame.convert(proto_video_frame.VideoBufferType.RGB24)
         image_frame = ImageRawFrame(
             image=rgb_frame.data,
@@ -904,7 +904,7 @@ class LiveKitOutputTransport(BaseOutputTransport):
         Returns:
             True if the audio frame was written successfully, False otherwise.
         """
-        livekit_audio = self._convert_pipecat_audio_to_livekit(frame.audio)
+        livekit_audio = self._convert_lokin_audio_to_livekit(frame.audio)
         return await self._client.publish_audio(livekit_audio)
 
     def _supports_native_dtmf(self) -> bool:
@@ -923,14 +923,14 @@ class LiveKitOutputTransport(BaseOutputTransport):
         """
         await self._client.send_dtmf(frame.button.value)
 
-    def _convert_pipecat_audio_to_livekit(self, pipecat_audio: bytes) -> rtc.AudioFrame:
-        """Convert Pipecat audio data to LiveKit audio frame."""
+    def _convert_lokin_audio_to_livekit(self, lokin_audio: bytes) -> rtc.AudioFrame:
+        """Convert Lokin audio data to LiveKit audio frame."""
         bytes_per_sample = 2  # Assuming 16-bit audio
-        total_samples = len(pipecat_audio) // bytes_per_sample
+        total_samples = len(lokin_audio) // bytes_per_sample
         samples_per_channel = total_samples // self._params.audio_out_channels
 
         return rtc.AudioFrame(
-            data=pipecat_audio,
+            data=lokin_audio,
             sample_rate=self.sample_rate,
             num_channels=self._params.audio_out_channels,
             samples_per_channel=samples_per_channel,

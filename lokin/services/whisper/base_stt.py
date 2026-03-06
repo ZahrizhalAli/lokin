@@ -19,7 +19,7 @@ from lokin.utils.tracing.service_decorators import traced_stt
 
 
 def language_to_whisper_language(language: Language) -> Optional[str]:
-    """Maps pipecat Language enum to Whisper API language codes.
+    """Maps lokin Language enum to Whisper API language codes.
 
     Language support for Whisper API.
     Docs: https://platform.openai.com/docs/guides/speech-to-text#supported-languages
@@ -126,7 +126,7 @@ class BaseWhisperSTTService(SegmentedSTTService):
                 Each service implements this differently (see child classes).
                 Defaults to False.
             ttfs_p99_latency: P99 latency from speech end to final transcript in seconds.
-                Override for your deployment. See https://github.com/pipecat-ai/stt-benchmark
+                Override for your deployment.
             **kwargs: Additional arguments passed to SegmentedSTTService.
         """
         super().__init__(ttfs_p99_latency=ttfs_p99_latency, **kwargs)
@@ -164,7 +164,7 @@ class BaseWhisperSTTService(SegmentedSTTService):
         return True
 
     def language_to_service_language(self, language: Language) -> Optional[str]:
-        """Convert from pipecat Language to service language code.
+        """Convert from lokin Language to service language code.
 
         Args:
             language: The Language enum value to convert.

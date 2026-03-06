@@ -136,7 +136,7 @@ INPUT_TASK_CANCEL_TIMEOUT_SECS = 3
 class FrameProcessor(BaseObject):
     """Base class for all frame processors in the pipeline.
 
-    Frame processors are the building blocks of Pipecat pipelines, they can be
+    Frame processors are the building blocks of Lokin pipelines, they can be
     linked to form complex processing pipelines. They receive frames, process
     them, and pass them to the next or previous processor in the chain.  Each
     frame processor guarantees frame ordering and processes frames in its own
