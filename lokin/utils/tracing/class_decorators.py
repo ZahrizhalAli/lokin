@@ -69,8 +69,8 @@ class Traceable:
             self._tracer = self._meter = self._parent_span_id = self._span = None
             return
 
-        self._tracer = trace.get_tracer("pipecat")
-        self._meter = metrics.get_meter("pipecat")
+        self._tracer = trace.get_tracer("lokin")
+        self._meter = metrics.get_meter("lokin")
         self._parent_span_id = trace.get_current_span().get_span_context().span_id
         self._span = self._tracer.start_span(name)
         self._span.end()

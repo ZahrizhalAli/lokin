@@ -1,16 +1,15 @@
-"""Lokin Quickstart with Pipecat UI.
+"""Lokin Quickstart.
 
 The example runs a simple voice AI bot that you can connect to using your
 browser and speak with it.
 
 Required AI services:
-- Deepgram (Speech-to-Text)
+- Deepgram (Speech-to-Text) (Optional)
 - OpenAI (LLM)
-- Cartesia (Text-to-Speech)
+- Cartesia (Text-to-Speech) (Optional)
 
 Run the bot using::
-
-    uv run bot.py
+    uv run app.py
 """
 
 import os
