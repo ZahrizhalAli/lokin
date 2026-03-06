@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lokin Voice UI</title>
+    <meta name="theme-color" content="#10141a" />
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <div>
+            <div class="brand-title">Lokin Voice</div>
+            <div class="brand-subtitle">Realtime audio canvas</div>
+          </div>
+        </div>
+        <div class="status" aria-live="polite">
+          <span class="status-dot" data-status="idle"></span>
+          <span id="statusText">Idle</span>
+        </div>
+      </header>
+
+      <section class="stage">
+        <div class="viz-shell">
+          <canvas id="viz" aria-label="Voice visualization" role="img"></canvas>
+          <div class="viz-overlay">
+            <div class="signal-pill" id="signalPill">Mic off</div>
+            <div class="session-meta" id="sessionMeta">Session not started</div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn primary" id="connectBtn">Start Session</button>
+          <button class="btn ghost" id="muteBtn" disabled>Mute Mic</button>
+          <button class="btn ghost" id="resetBtn" disabled>Disconnect</button>
+        </div>
+
+        <p class="hint" id="hintText">
+          Allow microphone access to begin. Your voice is streamed in realtime and
+          responses play back immediately.
+        </p>
+      </section>
+
+      <footer class="footer">
+        <div>Powered by Lokin SmallWebRTC transport</div>
+        <div id="latencyText">Audio link: standby</div>
+      </footer>
+    </main>
+
+    <audio id="remoteAudio" autoplay playsinline></audio>
+
+    <script type="module" src="./assets/app.js"></script>
+  </body>
+</html>

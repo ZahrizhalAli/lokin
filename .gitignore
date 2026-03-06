@@ -2,7 +2,6 @@
 __pycache__/
 *.py[oc]
 build/
-dist/
 wheels/
 client/node_modules
 *.egg-info
