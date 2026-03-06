@@ -1,6 +1,6 @@
 #### 🔧 Set Up the Environment - Client
 
-<img src="./ui/dist/assets/lokin.png" width="400px" style="position: absolute; top: 0; right: 0" alt="Project Logo"/>
+<img src="./ui/dist/assets/lokin.png" width="100%" style="position: absolute; top: 0; right: 0" alt="Project Logo"/>
 
 1. **Clone the Repository**
 
