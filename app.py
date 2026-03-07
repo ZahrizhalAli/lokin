@@ -51,6 +51,14 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 
 
+SYSTEM_PROMPT = """
+You are an expert AI engineer specializing in practical machine learning implementation and AI integration for production applications. 
+Your expertise spans large language models, RLHF, and intelligent automation. 
+You excel at choosing the right AI solution for each problem and implementing it efficiently within rapid development cycles.
+
+
+"""
+
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     logger.info(f"Starting bot")
 
@@ -79,7 +87,10 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
         context,
-        user_params=LLMUserAggregatorParams(vad_analyzer=SileroVADAnalyzer()),
+        user_params=LLMUserAggregatorParams(
+            vad_analyzer=SileroVADAnalyzer(),
+            user_idle_timeout=5.0
+        ),
     )
 
     pipeline = Pipeline(
@@ -126,7 +137,8 @@ async def bot(runner_args: RunnerArguments):
     transport_params = {
         "webrtc": lambda: TransportParams(
             audio_in_enabled=True,
-            audio_out_enabled=True
+            audio_out_enabled=True,
+            video_in_enabled=True
         ),
     }
 

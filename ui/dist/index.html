@@ -24,24 +24,45 @@
       </header>
 
       <section class="stage">
-        <div class="viz-shell">
-          <canvas id="viz" aria-label="Voice visualization" role="img"></canvas>
-          <div class="viz-overlay">
-            <div class="signal-pill" id="signalPill">Mic off</div>
-            <div class="session-meta" id="sessionMeta">Session not started</div>
+        <div class="split">
+          <div class="panel">
+            <div class="panel-header">
+              <span>Screen Share</span>
+              <span class="panel-sub" id="screenStatus">Inactive</span>
+            </div>
+            <div class="screen-shell">
+              <video id="screenPreview" autoplay muted playsinline></video>
+              <div class="screen-placeholder" id="screenPlaceholder">
+                Screen Shared show here
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <span>Voice Visualizer</span>
+              <span class="panel-sub" id="sessionMeta">Session not started</span>
+            </div>
+            <div class="viz-shell">
+              <canvas id="viz" aria-label="Voice visualization" role="img"></canvas>
+              <div class="viz-overlay">
+                <div class="signal-pill" id="signalPill">Mic off</div>
+              </div>
+            </div>
+
+            <div class="controls">
+              <button class="btn primary" id="connectBtn">Start Session</button>
+              <button class="btn ghost" id="muteBtn" disabled>Mute Mic</button>
+              <button class="btn ghost" id="screenBtn">Share Screen</button>
+              <button class="btn ghost" id="resetBtn" disabled>Disconnect</button>
+            </div>
+
+            <p class="hint" id="hintText">
+              Allow microphone access to begin. Your voice is streamed in realtime and
+              responses play back immediately.
+            </p>
           </div>
         </div>
-
-        <div class="controls">
-          <button class="btn primary" id="connectBtn">Start Session</button>
-          <button class="btn ghost" id="muteBtn" disabled>Mute Mic</button>
-          <button class="btn ghost" id="resetBtn" disabled>Disconnect</button>
-        </div>
-
-        <p class="hint" id="hintText">
-          Allow microphone access to begin. Your voice is streamed in realtime and
-          responses play back immediately.
-        </p>
       </section>
 
       <footer class="footer">

@@ -33,7 +33,7 @@ body {
 }
 
 .app {
-  width: min(1100px, 100%);
+  width: min(1200px, 100%);
   display: grid;
   gap: 24px;
 }
@@ -111,8 +111,60 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   border: 1px solid rgba(125, 249, 255, 0.12);
+}
+
+.split {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
+}
+
+.panel {
+  display: grid;
+  gap: 18px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+}
+
+.panel-sub {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.screen-shell {
+  position: relative;
+  min-height: 360px;
+  border-radius: calc(var(--radius) + 10px);
+  background: rgba(10, 14, 20, 0.85);
+  border: 1px solid rgba(125, 249, 255, 0.12);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#screenPreview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+
+.screen-placeholder {
+  color: rgba(244, 246, 251, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-size: 12px;
+  padding: 0 20px;
+  text-align: center;
 }
 
 .viz-shell {
@@ -137,7 +189,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 22px;
   pointer-events: none;
 }
@@ -153,15 +205,10 @@ body {
   letter-spacing: 0.18em;
 }
 
-.session-meta {
-  font-size: 14px;
-  color: var(--muted);
-}
-
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 12px;
 }
 
 .btn {
@@ -217,6 +264,12 @@ body {
   color: var(--muted);
   font-size: 12px;
   padding: 0 8px;
+}
+
+@media (max-width: 900px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 720px) {

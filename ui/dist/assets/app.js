@@ -1,6 +1,7 @@
 const ui = {
   connectBtn: document.getElementById("connectBtn"),
   muteBtn: document.getElementById("muteBtn"),
+  screenBtn: document.getElementById("screenBtn"),
   resetBtn: document.getElementById("resetBtn"),
   statusText: document.getElementById("statusText"),
   statusDot: document.querySelector(".status-dot"),
@@ -8,6 +9,9 @@ const ui = {
   signalPill: document.getElementById("signalPill"),
   sessionMeta: document.getElementById("sessionMeta"),
   latencyText: document.getElementById("latencyText"),
+  screenStatus: document.getElementById("screenStatus"),
+  screenPlaceholder: document.getElementById("screenPlaceholder"),
+  screenPreview: document.getElementById("screenPreview"),
   remoteAudio: document.getElementById("remoteAudio"),
   canvas: document.getElementById("viz"),
 };
@@ -30,6 +34,10 @@ const state = {
   animationId: null,
   connectedAt: null,
   micEnabled: false,
+  screenStream: null,
+  screenTrack: null,
+  screenTransceiver: null,
+  isScreenSharing: false,
 };
 
 const viz = {
@@ -71,7 +79,21 @@ function setButtons() {
   ui.connectBtn.disabled = isConnected;
   ui.muteBtn.disabled = !isConnected;
   ui.resetBtn.disabled = !isConnected;
+  ui.screenBtn.disabled = !isConnected;
   ui.muteBtn.textContent = state.micEnabled ? "Mute Mic" : "Unmute Mic";
+  ui.screenBtn.textContent = state.isScreenSharing ? "Stop Share" : "Share Screen";
+}
+
+function setScreenUI(active) {
+  if (active) {
+    ui.screenPlaceholder.style.display = "none";
+    ui.screenPreview.style.display = "block";
+    ui.screenStatus.textContent = "Sharing";
+  } else {
+    ui.screenPlaceholder.style.display = "block";
+    ui.screenPreview.style.display = "none";
+    ui.screenStatus.textContent = "Inactive";
+  }
 }
 
 function resizeCanvas() {
@@ -230,7 +252,7 @@ async function connectSession() {
   setHint("Grant microphone permission to start the live session.");
 
   try {
-  state.localStream = await navigator.mediaDevices.getUserMedia({
+    state.localStream = await navigator.mediaDevices.getUserMedia({
       audio: {
         echoCancellation: true,
         noiseSuppression: true,
@@ -308,6 +330,8 @@ async function connectSession() {
     state.pc.addTrack(track, state.localStream);
   });
 
+  state.screenTransceiver = state.pc.addTransceiver("video", { direction: "sendonly" });
+
   ui.sessionMeta.textContent = "Negotiating session";
   setStatus("Negotiating", "connecting");
 
@@ -343,7 +367,7 @@ async function negotiate({ restart = false } = {}) {
       restart_pc: restart || undefined,
       request_data: {
         ui: "Lokin Nebula",
-        version: "1.0",
+        version: "1.1",
       },
     }),
   });
@@ -421,9 +445,91 @@ function toggleMute() {
   setButtons();
 }
 
+async function startScreenShare() {
+  if (!state.pc) return;
+  if (!navigator.mediaDevices?.getDisplayMedia) {
+    setHint("Screen sharing is not supported in this browser.");
+    return;
+  }
+
+  try {
+    state.screenStream = await navigator.mediaDevices.getDisplayMedia({
+      video: true,
+      audio: false,
+    });
+  } catch (error) {
+    console.error(error);
+    setHint("Screen share permission was denied.");
+    return;
+  }
+
+  const [track] = state.screenStream.getVideoTracks();
+  if (!track) return;
+
+  state.screenTrack = track;
+  ui.screenPreview.srcObject = state.screenStream;
+  ui.screenPreview.play().catch(() => {});
+
+  track.onended = () => {
+    stopScreenShare();
+  };
+
+  if (state.screenTransceiver) {
+    await state.screenTransceiver.sender.replaceTrack(track);
+  } else {
+    state.screenTransceiver = state.pc.addTransceiver(track, { direction: "sendonly" });
+  }
+
+  state.isScreenSharing = true;
+  setScreenUI(true);
+  ui.sessionMeta.textContent = "Screen sharing active";
+  setButtons();
+
+  await negotiate({ restart: false });
+}
+
+async function stopScreenShare({ renegotiate = true } = {}) {
+  if (state.screenTrack) {
+    state.screenTrack.onended = null;
+    state.screenTrack.stop();
+  }
+
+  if (state.screenStream) {
+    state.screenStream.getTracks().forEach((track) => track.stop());
+  }
+
+  if (state.screenTransceiver) {
+    await state.screenTransceiver.sender.replaceTrack(null);
+  }
+
+  state.screenStream = null;
+  state.screenTrack = null;
+  state.isScreenSharing = false;
+  ui.screenPreview.srcObject = null;
+  setScreenUI(false);
+  ui.sessionMeta.textContent = state.pc ? "Realtime session active" : "Session not started";
+  setButtons();
+
+  if (state.pc && renegotiate) {
+    await negotiate({ restart: false });
+  }
+}
+
+async function toggleScreenShare() {
+  if (state.isScreenSharing) {
+    await stopScreenShare({ renegotiate: false });
+  } else {
+    await startScreenShare();
+  }
+}
+
 async function disconnectSession() {
   if (state.pingTimer) clearInterval(state.pingTimer);
   state.pingTimer = null;
+
+  if (state.isScreenSharing) {
+    await stopScreenShare();
+  }
 
   if (state.dataChannel) {
     state.dataChannel.close();
@@ -445,6 +551,7 @@ async function disconnectSession() {
   state.dataChannel = null;
   state.localStream = null;
   state.remoteStream = null;
+  state.screenTransceiver = null;
   state.micEnabled = false;
   state.connectedAt = null;
   state.pendingCandidates = [];
@@ -463,6 +570,7 @@ async function disconnectSession() {
   setHint("Session ended. Tap start to connect again.");
   ui.signalPill.textContent = "Mic off";
   ui.sessionMeta.textContent = "Session not started";
+  setScreenUI(false);
   updateLatency();
   setButtons();
 }
@@ -482,9 +590,15 @@ ui.connectBtn.addEventListener("click", async () => {
 });
 
 ui.muteBtn.addEventListener("click", toggleMute);
+ui.screenBtn.addEventListener("click", () => {
+  toggleScreenShare().catch((error) => {
+    console.error(error);
+  });
+});
 ui.resetBtn.addEventListener("click", disconnectSession);
 
 setInterval(updateLatency, 1000);
 resizeCanvas();
 setButtons();
+setScreenUI(false);
 setStatus("Idle", "idle");

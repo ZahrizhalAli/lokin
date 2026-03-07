@@ -8,7 +8,7 @@
 
 **Audio Capture**: Your browser captures microphone audio and sends it via WebRTC
 
-**Voice Activity** Detection: Silero VAD detects when you start and stop speaking
+**Voice Activity** Detection: [Silero VAD ](https://github.com/snakers4/silero-vad) detects when you start and stop speaking
 
 **Speech Recognition**: Deepgram converts your speech to text in real-time
 
@@ -34,6 +34,7 @@
    ```
 
    > Refer to the [uv install documentation](https://docs.astral.sh/uv/getting-started/installation/).
+
 
 3. Set up environment
 
