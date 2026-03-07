@@ -17,12 +17,11 @@ import os
 from loguru import logger
 
 print("🚀 Starting Lokin bot...")
-print("⏳ Loading models and imports (20 seconds, first run only)\n")
 
 logger.info("Loading Silero VAD model...")
 from lokin.audio.vad.silero import SileroVADAnalyzer
 
-logger.info("✅ Silero VAD model loaded")
+logger.info("✅[Success] Silero VAD model loaded")
 
 from lokin.frames.frames import LLMRunFrame
 
@@ -46,7 +45,7 @@ from lokin.services.openai.tts import OpenAITTSService
 from lokin.services.openai.llm import OpenAILLMService
 from lokin.transports.base_transport import BaseTransport, TransportParams
 
-logger.info("✅ All components loaded successfully!")
+logger.info("✅[Success] All components loaded successfully!")
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
@@ -58,16 +57,17 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     # stt = DeepgramSTTService(api_key=os.getenv("DEEPGRAM_API_KEY"))
     stt = OpenAISTTService(api_key=os.getenv("OPENAI_API_KEY"))
 
-    # tts = CartesiaTTSService(
-    #     api_key=os.getenv("CARTESIA_API_KEY"),
-    #     voice_id="71a7ad14-091c-4e8e-a314-022ece01c121",  # British Reading Lady
-    # )
+    tts = CartesiaTTSService(
+        api_key=os.getenv("CARTESIA_API_KEY"),
+        voice_id="71a7ad14-091c-4e8e-a314-022ece01c121",  # British Reading Lady
+    )
 
-    tts = OpenAITTSService(api_key=os.getenv("OPENAI_API_KEY"), speed=1.0)
+    # tts = OpenAITTSService(api_key=os.getenv("OPENAI_API_KEY"), speed=1.2)
 
 
     llm = OpenAILLMService(api_key=os.getenv("OPENAI_API_KEY"))
 
+    # Build Messages Template
     messages = [
         {
             "role": "system",
@@ -76,6 +76,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     ]
 
     context = LLMContext(messages)
+
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
         context,
         user_params=LLMUserAggregatorParams(vad_analyzer=SileroVADAnalyzer()),
@@ -119,8 +120,9 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 
 
 async def bot(runner_args: RunnerArguments):
-    """Main bot entry point for the bot starter."""
+    """Main bot called by the runner."""
 
+    # Create transport params : WebRTC
     transport_params = {
         "webrtc": lambda: TransportParams(
             audio_in_enabled=True,
@@ -130,6 +132,7 @@ async def bot(runner_args: RunnerArguments):
 
     transport = await create_transport(runner_args, transport_params)
 
+    # Run Bot
     await run_bot(transport, runner_args)
 
 

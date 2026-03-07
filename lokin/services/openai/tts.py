@@ -80,7 +80,7 @@ class OpenAITTSService(TTSService):
         *,
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
-        voice: str = "alloy",
+        voice: str = "marin",
         model: str = "gpt-4o-mini-tts",
         sample_rate: Optional[int] = None,
         instructions: Optional[str] = None,
