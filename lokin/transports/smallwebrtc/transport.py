@@ -286,7 +286,7 @@ class SmallWebRTCClient:
         while True:
             video_track = (
                 self._video_input_track
-                if video_source == CAM_VIDEO_SOURCE
+                if video_source == SCREEN_VIDEO_SOURCE
                 else self._screen_video_track
             )
             if video_track is None:
@@ -724,7 +724,7 @@ class SmallWebRTCInputTransport(BaseInputTransport):
 
     async def capture_participant_media(
         self,
-        source: str = CAM_VIDEO_SOURCE,
+        source: str = SCREEN_VIDEO_SOURCE,
     ):
         """Capture media from a specific participant.
 

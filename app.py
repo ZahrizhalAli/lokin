@@ -13,6 +13,7 @@ Run the bot using::
 """
 
 import os
+import time
 
 from loguru import logger
 
@@ -23,13 +24,14 @@ from lokin.audio.vad.silero import SileroVADAnalyzer
 
 logger.info("✅[Success] Silero VAD model loaded")
 
-from lokin.frames.frames import LLMRunFrame
+from lokin.frames.frames import InputImageRawFrame, LLMContextFrame, LLMRunFrame
 
 logger.info("Loading pipeline components...")
 from lokin.pipeline.pipeline import Pipeline
 from lokin.pipeline.runner import PipelineRunner
 from lokin.pipeline.task import PipelineParams, PipelineTask
 from lokin.processors.aggregators.llm_context import LLMContext
+from lokin.processors.frame_processor import FrameDirection, FrameProcessor
 
 from lokin.processors.aggregators.llm_response_universal import (
     LLMContextAggregatorPair,
@@ -37,7 +39,7 @@ from lokin.processors.aggregators.llm_response_universal import (
 )
 
 from lokin.runner.types import RunnerArguments
-from lokin.runner.utils import create_transport
+from lokin.runner.utils import (create_transport, maybe_capture_participant_screen)
 from lokin.services.cartesia.tts import CartesiaTTSService
 from lokin.services.deepgram.stt import DeepgramSTTService
 from lokin.services.openai.stt import OpenAISTTService
@@ -49,6 +51,57 @@ logger.info("✅[Success] All components loaded successfully!")
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
+
+class ScreenShareContextInjector(FrameProcessor):
+    """Inject the latest screen share frame into the LLM context."""
+
+    def __init__(self, *, min_interval_secs: float = 1.5):
+        super().__init__(name="ScreenShareContextInjector")
+        self._latest_frame: InputImageRawFrame | None = None
+        self._latest_frame_time: float = 0.0
+        self._last_injected_pts: int | None = None
+        self._min_interval_secs = min_interval_secs
+        self._last_injected_time: float = 0.0
+
+    async def process_frame(self, frame, direction: FrameDirection):
+        await super().process_frame(frame, direction)
+
+        if isinstance(frame, InputImageRawFrame) and frame.transport_source == "screenVideo":
+            self._latest_frame = frame
+            self._latest_frame_time = time.monotonic()
+            await self.push_frame(frame, direction)
+            return
+
+        if isinstance(frame, LLMContextFrame):
+            await self._maybe_inject_screen(frame)
+            await self.push_frame(frame, direction)
+            return
+
+        await self.push_frame(frame, direction)
+
+    async def _maybe_inject_screen(self, frame: LLMContextFrame):
+        if not self._latest_frame:
+            return
+
+        if self._last_injected_pts == self._latest_frame.pts:
+            return
+
+        now = time.monotonic()
+        if now - self._latest_frame_time > 5:
+            return
+
+        if now - self._last_injected_time < self._min_interval_secs:
+            return
+
+        await frame.context.add_image_frame_message(
+            format=self._latest_frame.format,
+            size=self._latest_frame.size,
+            image=self._latest_frame.image,
+            text="User screen share",
+        )
+
+        self._last_injected_pts = self._latest_frame.pts
+        self._last_injected_time = now
 
 
 SYSTEM_PROMPT = """
@@ -93,11 +146,14 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         ),
     )
 
+    screen_injector = ScreenShareContextInjector()
+
     pipeline = Pipeline(
         [
             transport.input(),  # Transport user input
             stt,
             user_aggregator,  # User responses
+            screen_injector,  # Inject latest screen share into LLM context
             llm,  # LLM
             tts,  # TTS
             transport.output(),  # Transport bot output
@@ -116,6 +172,9 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
         logger.info(f"Client connected")
+        await maybe_capture_participant_screen(transport, client, framerate=1)
+
+
         # Kick off the conversation.
         messages.append({"role": "system", "content": "Say hello and briefly introduce yourself."})
         await task.queue_frames([LLMRunFrame()])
