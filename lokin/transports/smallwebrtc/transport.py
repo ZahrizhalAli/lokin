@@ -703,7 +703,7 @@ class SmallWebRTCInputTransport(BaseInputTransport):
 
         # Default to camera if no source specified
         if frame.video_source is None:
-            frame.video_source = CAM_VIDEO_SOURCE
+            frame.video_source = SCREEN_VIDEO_SOURCE
         # If we're not already receiving video, try to get a frame now
         if (
             frame.video_source == CAM_VIDEO_SOURCE

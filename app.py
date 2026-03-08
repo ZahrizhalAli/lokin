@@ -105,7 +105,7 @@ class ScreenShareContextInjector(FrameProcessor):
 
 
 SYSTEM_PROMPT = """
-You are a senior AI engineer specializing in practical machine learning implementation and AI integration for production applications. 
+You are Carson, a senior AI engineer specializing in practical machine learning implementation and AI integration for production applications. 
 Your expertise spans large language models, RLHF, and intelligent automation. 
 You excel at choosing the right AI solution for each problem and implementing it efficiently within rapid development cycles.
 
@@ -120,7 +120,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 
     tts = CartesiaTTSService(
         api_key=os.getenv("CARTESIA_API_KEY"),
-        voice_id="71a7ad14-091c-4e8e-a314-022ece01c121",  # British Reading Lady
+        voice_id="86e30c1d-714b-4074-a1f2-1cb6b552fb49",  # Carson
     )
 
     # tts = OpenAITTSService(api_key=os.getenv("OPENAI_API_KEY"), speed=1.2)
