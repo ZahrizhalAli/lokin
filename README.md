@@ -1,12 +1,14 @@
 
 
-# 🎙️ Lokin: Real-Time Voice AI Agents
+# 🎙️ Lokin: Real-Time AI Interviewer 
 
 **Lokin** is an open-source Python framework for building real-time voice and multimodal conversational agents. Orchestrate audio and video, AI services, web transport, and conversation pipelines.
 
 ## Real-Time Pipeline
 
 **Audio Capture**: Your browser captures microphone audio and sends it via WebRTC
+
+**Share Screen** : Inject your screen sharing enabling Lokin to give you direct feedback.
 
 **Voice Activity** Detection: [Silero VAD ](https://github.com/snakers4/silero-vad) detects when you start and stop speaking
 

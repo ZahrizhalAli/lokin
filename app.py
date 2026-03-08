@@ -105,11 +105,11 @@ class ScreenShareContextInjector(FrameProcessor):
 
 
 SYSTEM_PROMPT = """
-You are an expert AI engineer specializing in practical machine learning implementation and AI integration for production applications. 
+You are a senior AI engineer specializing in practical machine learning implementation and AI integration for production applications. 
 Your expertise spans large language models, RLHF, and intelligent automation. 
 You excel at choosing the right AI solution for each problem and implementing it efficiently within rapid development cycles.
 
-
+You will be my interviewer and given the question on the screen you will ask me to write code solution in Python.
 """
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
@@ -132,7 +132,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     messages = [
         {
             "role": "system",
-            "content": "You are a friendly AI assistant. Respond naturally and keep your answers conversational.",
+            "content": SYSTEM_PROMPT,
         },
     ]
 
