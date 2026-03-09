@@ -46,11 +46,21 @@ from lokin.services.openai.stt import OpenAISTTService
 from lokin.services.openai.tts import OpenAITTSService
 from lokin.services.openai.llm import OpenAILLMService
 from lokin.transports.base_transport import BaseTransport, TransportParams
+from lokin.utils.system_prompt_parser import load_prompt
 
 logger.info("✅[Success] All components loaded successfully!")
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
+
+logger.info("Loading prompt...")
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROMPT_PATH = os.path.join(BASE_DIR, 'lokin/config', 'interviewer_prompt.md')
+
+SYSTEM_PROMPT = load_prompt(PROMPT_PATH)
+logger.info("✅[Success] Prompt Loaded")
+
 
 class ScreenShareContextInjector(FrameProcessor):
     """Inject the latest screen share frame into the LLM context."""
@@ -104,14 +114,6 @@ class ScreenShareContextInjector(FrameProcessor):
         self._last_injected_time = now
 
 
-SYSTEM_PROMPT = """
-You are Carson, a senior AI engineer specializing in practical machine learning implementation and AI integration for production applications. 
-Your expertise spans large language models, RLHF, and intelligent automation. 
-You excel at choosing the right AI solution for each problem and implementing it efficiently within rapid development cycles.
-
-You will be my interviewer and given the question on the screen you will ask me to write code solution in Python.
-"""
-
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     logger.info(f"Starting bot")
 
@@ -124,7 +126,6 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     )
 
     # tts = OpenAITTSService(api_key=os.getenv("OPENAI_API_KEY"), speed=1.2)
-
 
     llm = OpenAILLMService(api_key=os.getenv("OPENAI_API_KEY"))
 
