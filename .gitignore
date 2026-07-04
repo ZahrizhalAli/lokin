@@ -10,3 +10,6 @@ client/node_modules
 # Virtual environments
 .venv
 .env
+
+# Recorded voice sessions (see lokin/observers/session_recorder.py)
+sessions/

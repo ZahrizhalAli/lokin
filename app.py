@@ -13,7 +13,6 @@ Run the bot using::
 """
 
 import os
-import time
 
 from loguru import logger
 
@@ -24,14 +23,15 @@ from lokin.audio.vad.silero import SileroVADAnalyzer
 
 logger.info("✅[Success] Silero VAD model loaded")
 
-from lokin.frames.frames import InputImageRawFrame, LLMContextFrame, LLMRunFrame
+from lokin.frames.frames import LLMRunFrame
 
 logger.info("Loading pipeline components...")
+from lokin.observers.session_recorder import SessionRecorderObserver
 from lokin.pipeline.pipeline import Pipeline
 from lokin.pipeline.runner import PipelineRunner
 from lokin.pipeline.task import PipelineParams, PipelineTask
 from lokin.processors.aggregators.llm_context import LLMContext
-from lokin.processors.frame_processor import FrameDirection, FrameProcessor
+from lokin.processors.screen_share_injector import ScreenShareContextInjector
 
 from lokin.processors.aggregators.llm_response_universal import (
     LLMContextAggregatorPair,
@@ -62,70 +62,18 @@ SYSTEM_PROMPT = load_prompt(PROMPT_PATH)
 logger.info("✅[Success] Prompt Loaded")
 
 
-class ScreenShareContextInjector(FrameProcessor):
-    """Inject the latest screen share frame into the LLM context."""
-
-    def __init__(self, *, min_interval_secs: float = 1.5):
-        super().__init__(name="ScreenShareContextInjector")
-        self._latest_frame: InputImageRawFrame | None = None
-        self._latest_frame_time: float = 0.0
-        self._last_injected_pts: int | None = None
-        self._min_interval_secs = min_interval_secs
-        self._last_injected_time: float = 0.0
-
-    async def process_frame(self, frame, direction: FrameDirection):
-        await super().process_frame(frame, direction)
-
-        if isinstance(frame, InputImageRawFrame) and frame.transport_source == "screenVideo":
-            self._latest_frame = frame
-            self._latest_frame_time = time.monotonic()
-            await self.push_frame(frame, direction)
-            return
-
-        if isinstance(frame, LLMContextFrame):
-            await self._maybe_inject_screen(frame)
-            await self.push_frame(frame, direction)
-            return
-
-        await self.push_frame(frame, direction)
-
-    async def _maybe_inject_screen(self, frame: LLMContextFrame):
-        if not self._latest_frame:
-            return
-
-        if self._last_injected_pts == self._latest_frame.pts:
-            return
-
-        now = time.monotonic()
-        if now - self._latest_frame_time > 5:
-            return
-
-        if now - self._last_injected_time < self._min_interval_secs:
-            return
-
-        await frame.context.add_image_frame_message(
-            format=self._latest_frame.format,
-            size=self._latest_frame.size,
-            image=self._latest_frame.image,
-            text="User screen share",
-        )
-
-        self._last_injected_pts = self._latest_frame.pts
-        self._last_injected_time = now
-
-
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     logger.info(f"Starting bot")
 
     # stt = DeepgramSTTService(api_key=os.getenv("DEEPGRAM_API_KEY"))
     stt = OpenAISTTService(api_key=os.getenv("OPENAI_API_KEY"))
 
-    tts = CartesiaTTSService(
-        api_key=os.getenv("CARTESIA_API_KEY"),
-        voice_id="86e30c1d-714b-4074-a1f2-1cb6b552fb49",  # Carson
-    )
+    # tts = CartesiaTTSService(
+    #     api_key=os.getenv("CARTESIA_API_KEY"),
+    #     voice_id="86e30c1d-714b-4074-a1f2-1cb6b552fb49",  # Carson
+    # )
 
-    # tts = OpenAITTSService(api_key=os.getenv("OPENAI_API_KEY"), speed=1.2)
+    tts = OpenAITTSService(api_key=os.getenv("OPENAI_API_KEY"), speed=1.2)
 
     llm = OpenAILLMService(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -162,12 +110,16 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         ]
     )
 
+    recorder = SessionRecorderObserver()
+    logger.info(f"Recording session to {recorder.session_dir}")
+
     task = PipelineTask(
         pipeline,
         params=PipelineParams(
             enable_metrics=True,
             enable_usage_metrics=True,
         ),
+        observers=[recorder],
     )
 
     @transport.event_handler("on_client_connected")
