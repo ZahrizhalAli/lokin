@@ -1,16 +1,15 @@
 const ui = {
-  connectBtn: document.getElementById("connectBtn"),
+  appRoot: document.getElementById("appRoot"),
+  callBtn: document.getElementById("callBtn"),
   muteBtn: document.getElementById("muteBtn"),
+  speakerBtn: document.getElementById("speakerBtn"),
   screenBtn: document.getElementById("screenBtn"),
-  resetBtn: document.getElementById("resetBtn"),
+  liveBadge: document.getElementById("liveBadge"),
   statusText: document.getElementById("statusText"),
-  statusDot: document.querySelector(".status-dot"),
+  timerText: document.getElementById("timerText"),
   hintText: document.getElementById("hintText"),
-  signalPill: document.getElementById("signalPill"),
-  sessionMeta: document.getElementById("sessionMeta"),
-  latencyText: document.getElementById("latencyText"),
-  screenStatus: document.getElementById("screenStatus"),
-  screenPlaceholder: document.getElementById("screenPlaceholder"),
+  botAvatar: document.getElementById("botAvatar"),
+  userAvatar: document.getElementById("userAvatar"),
   screenPreview: document.getElementById("screenPreview"),
   remoteAudio: document.getElementById("remoteAudio"),
   canvas: document.getElementById("viz"),
@@ -34,6 +33,7 @@ const state = {
   animationId: null,
   connectedAt: null,
   micEnabled: false,
+  speakerOn: true,
   screenStream: null,
   screenTrack: null,
   screenTransceiver: null,
@@ -47,9 +47,12 @@ const viz = {
   height: 0,
 };
 
+const NAVY = "#2b3990";
+const BAR_COUNT = 48;
+
 function setStatus(text, level = "idle") {
   ui.statusText.textContent = text;
-  ui.statusDot.dataset.status = level;
+  ui.liveBadge.dataset.status = level;
 }
 
 function setHint(text) {
@@ -57,43 +60,43 @@ function setHint(text) {
 }
 
 function formatDuration(ms) {
-  if (!ms) return "--";
   const totalSeconds = Math.floor(ms / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
-function updateLatency() {
+function updateTimer() {
   if (!state.connectedAt) {
-    ui.latencyText.textContent = "Audio link: standby";
+    ui.timerText.textContent = "";
     return;
   }
-  const elapsed = Date.now() - state.connectedAt;
-  ui.latencyText.textContent = `Audio link: live for ${formatDuration(elapsed)}`;
+  ui.timerText.textContent = formatDuration(Date.now() - state.connectedAt);
 }
 
 function setButtons() {
   const isConnected = Boolean(state.pc);
-  ui.connectBtn.textContent = "Start Session";
-  ui.connectBtn.disabled = isConnected;
+
+  ui.callBtn.classList.toggle("end", isConnected);
+  ui.callBtn.classList.toggle("start", !isConnected);
+  ui.callBtn.setAttribute("aria-label", isConnected ? "End interview" : "Start interview");
+
   ui.muteBtn.disabled = !isConnected;
-  ui.resetBtn.disabled = !isConnected;
+  ui.speakerBtn.disabled = !isConnected;
   ui.screenBtn.disabled = !isConnected;
-  ui.muteBtn.textContent = state.micEnabled ? "Mute Mic" : "Unmute Mic";
-  ui.screenBtn.textContent = state.isScreenSharing ? "Stop Share" : "Share Screen";
+
+  ui.muteBtn.dataset.on = String(state.micEnabled);
+  ui.muteBtn.setAttribute("aria-label", state.micEnabled ? "Mute microphone" : "Unmute microphone");
+  ui.speakerBtn.dataset.on = String(state.speakerOn);
+  ui.speakerBtn.setAttribute("aria-label", state.speakerOn ? "Mute speaker" : "Unmute speaker");
+  ui.screenBtn.classList.toggle("active", state.isScreenSharing);
+  ui.screenBtn.setAttribute("aria-label", state.isScreenSharing ? "Stop sharing screen" : "Share screen");
 }
 
 function setScreenUI(active) {
-  if (active) {
-    ui.screenPlaceholder.style.display = "none";
-    ui.screenPreview.style.display = "block";
-    ui.screenStatus.textContent = "Sharing";
-  } else {
-    ui.screenPlaceholder.style.display = "block";
-    ui.screenPreview.style.display = "none";
-    ui.screenStatus.textContent = "Inactive";
-  }
+  ui.appRoot.dataset.sharing = String(active);
+  // The call card resizes when the layout switches, so refit the canvas.
+  resizeCanvas();
 }
 
 function resizeCanvas() {
@@ -102,11 +105,12 @@ function resizeCanvas() {
   viz.height = Math.floor(rect.height * viz.dpr);
   ui.canvas.width = viz.width;
   ui.canvas.height = viz.height;
+  if (!state.animationId) {
+    drawIdleViz();
+  }
 }
 
-window.addEventListener("resize", () => {
-  resizeCanvas();
-});
+window.addEventListener("resize", resizeCanvas);
 
 function rms(data) {
   let sum = 0;
@@ -117,13 +121,39 @@ function rms(data) {
   return Math.sqrt(sum / data.length);
 }
 
-function drawVisualization() {
+function drawBars(levels) {
   const { ctx } = viz;
   ctx.clearRect(0, 0, viz.width, viz.height);
 
-  const midX = viz.width / 2;
+  const gap = 3 * viz.dpr;
+  const barWidth = Math.max(2 * viz.dpr, (viz.width - gap * (BAR_COUNT - 1)) / BAR_COUNT);
   const midY = viz.height / 2;
+  const maxHalf = viz.height / 2 - 2 * viz.dpr;
+  const minHalf = 2 * viz.dpr;
 
+  for (let i = 0; i < BAR_COUNT; i += 1) {
+    const level = levels[i] || 0;
+    const half = minHalf + level * (maxHalf - minHalf);
+    const x = i * (barWidth + gap);
+
+    ctx.fillStyle = NAVY;
+    ctx.globalAlpha = 0.35 + level * 0.65;
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(x, midY - half, barWidth, half * 2, barWidth / 2);
+    } else {
+      ctx.rect(x, midY - half, barWidth, half * 2);
+    }
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawIdleViz() {
+  drawBars(new Array(BAR_COUNT).fill(0));
+}
+
+function drawVisualization() {
   let micLevel = 0;
   let outLevel = 0;
 
@@ -139,78 +169,23 @@ function drawVisualization() {
     outLevel = rms(state.outTimeData);
   }
 
-  const combinedLevel = Math.min(1, micLevel * 1.4 + outLevel * 1.1);
-  const baseRadius = Math.min(viz.width, viz.height) * 0.16;
-  const glowRadius = baseRadius + combinedLevel * 120;
-
-  const glow = ctx.createRadialGradient(midX, midY, baseRadius * 0.2, midX, midY, glowRadius);
-  glow.addColorStop(0, "rgba(125, 249, 255, 0.55)");
-  glow.addColorStop(0.6, "rgba(95, 225, 199, 0.22)");
-  glow.addColorStop(1, "rgba(12, 15, 20, 0)");
-
-  ctx.fillStyle = glow;
-  ctx.beginPath();
-  ctx.arc(midX, midY, glowRadius, 0, Math.PI * 2);
-  ctx.fill();
-
-  const core = ctx.createRadialGradient(midX, midY, baseRadius * 0.3, midX, midY, baseRadius * 1.4);
-  core.addColorStop(0, "rgba(125, 249, 255, 0.9)");
-  core.addColorStop(0.7, "rgba(95, 225, 199, 0.55)");
-  core.addColorStop(1, "rgba(30, 45, 65, 0.2)");
-
-  ctx.fillStyle = core;
-  ctx.beginPath();
-  ctx.arc(midX, midY, baseRadius + combinedLevel * 40, 0, Math.PI * 2);
-  ctx.fill();
-
-  const barCount = 120;
-  const maxBar = Math.min(viz.width, viz.height) * 0.16;
-  const innerRadius = baseRadius + 40;
-
-  for (let i = 0; i < barCount; i += 1) {
-    const angle = (i / barCount) * Math.PI * 2;
-    const micIndex = state.micFreqData
-      ? Math.floor((i / barCount) * state.micFreqData.length)
-      : 0;
-    const outIndex = state.outFreqData
-      ? Math.floor((i / barCount) * state.outFreqData.length)
-      : 0;
-    const micValue = state.micFreqData ? state.micFreqData[micIndex] / 255 : 0;
-    const outValue = state.outFreqData ? state.outFreqData[outIndex] / 255 : 0;
-    const power = Math.min(1, micValue * 0.7 + outValue * 0.9);
-    const barLength = 12 + power * maxBar;
-
-    const x1 = midX + Math.cos(angle) * innerRadius;
-    const y1 = midY + Math.sin(angle) * innerRadius;
-    const x2 = midX + Math.cos(angle) * (innerRadius + barLength);
-    const y2 = midY + Math.sin(angle) * (innerRadius + barLength);
-
-    ctx.strokeStyle = `rgba(125, 249, 255, ${0.15 + power * 0.75})`;
-    ctx.lineWidth = 2.2;
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-  }
-
-  const waveData = state.outTimeData || state.micTimeData;
-  if (waveData) {
-    ctx.strokeStyle = "rgba(255, 158, 125, 0.65)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    const slice = viz.width / waveData.length;
-    for (let i = 0; i < waveData.length; i += 1) {
-      const v = (waveData[i] - 128) / 128;
-      const x = i * slice;
-      const y = midY + v * baseRadius * 1.1;
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
+  const levels = new Array(BAR_COUNT);
+  for (let i = 0; i < BAR_COUNT; i += 1) {
+    // Sample the lower ~70% of the spectrum, where voice energy lives.
+    let micValue = 0;
+    let outValue = 0;
+    if (state.micFreqData) {
+      micValue = state.micFreqData[Math.floor((i / BAR_COUNT) * state.micFreqData.length * 0.7)] / 255;
     }
-    ctx.stroke();
+    if (state.outFreqData) {
+      outValue = state.outFreqData[Math.floor((i / BAR_COUNT) * state.outFreqData.length * 0.7)] / 255;
+    }
+    levels[i] = Math.min(1, micValue * 0.8 + outValue);
   }
+  drawBars(levels);
+
+  ui.botAvatar.classList.toggle("speaking", outLevel > 0.04);
+  ui.userAvatar.classList.toggle("speaking", state.micEnabled && micLevel > 0.04);
 
   state.animationId = requestAnimationFrame(drawVisualization);
 }
@@ -243,13 +218,13 @@ function attachAnalyser(stream, kind) {
 
 async function connectSession() {
   if (!navigator.mediaDevices?.getUserMedia) {
-    setStatus("Mic unavailable", "error");
+    setStatus("No mic", "error");
     setHint("Your browser does not support microphone access.");
     return;
   }
 
-  setStatus("Requesting microphone", "connecting");
-  setHint("Grant microphone permission to start the live session.");
+  setStatus("Mic…", "connecting");
+  setHint("Grant microphone permission to start the interview.");
 
   try {
     state.localStream = await navigator.mediaDevices.getUserMedia({
@@ -279,6 +254,7 @@ async function connectSession() {
 
   state.remoteStream = new MediaStream();
   ui.remoteAudio.srcObject = state.remoteStream;
+  ui.remoteAudio.muted = !state.speakerOn;
 
   state.pc.ontrack = (event) => {
     const [stream] = event.streams;
@@ -296,16 +272,14 @@ async function connectSession() {
   };
 
   state.pc.onconnectionstatechange = () => {
-    const status = state.pc.connectionState;
+    const status = state.pc?.connectionState;
     if (status === "connected") {
       setStatus("Live", "live");
       state.connectedAt = Date.now();
-      ui.signalPill.textContent = state.micEnabled ? "Mic live" : "Mic muted";
     } else if (status === "connecting") {
       setStatus("Connecting", "connecting");
     } else if (status === "disconnected" || status === "failed") {
-      setStatus("Disconnected", "error");
-      ui.signalPill.textContent = "Mic off";
+      setStatus("Dropped", "error");
     }
   };
 
@@ -332,15 +306,12 @@ async function connectSession() {
 
   state.screenTransceiver = state.pc.addTransceiver("video", { direction: "sendonly" });
 
-  ui.sessionMeta.textContent = "Negotiating session";
-  setStatus("Negotiating", "connecting");
+  setStatus("Connecting", "connecting");
 
   await negotiate();
 
   state.micEnabled = true;
-  ui.signalPill.textContent = "Mic live";
-  ui.sessionMeta.textContent = "Realtime session active";
-  setHint("Speak naturally. The assistant responds over audio.");
+  setHint("Speak naturally. Lokin responds over audio. Share your screen when asked to code.");
 
   if (!state.animationId) {
     resizeCanvas();
@@ -366,8 +337,8 @@ async function negotiate({ restart = false } = {}) {
       pc_id: state.pcId || undefined,
       restart_pc: restart || undefined,
       request_data: {
-        ui: "Lokin Nebula",
-        version: "1.1",
+        ui: "Lokin Interview",
+        version: "2.0",
       },
     }),
   });
@@ -428,7 +399,6 @@ function handleDataMessage(payload) {
   }
 
   if (message.type === "signalling" && message.message?.type === "renegotiate") {
-    ui.sessionMeta.textContent = "Renegotiating";
     negotiate({ restart: false }).catch((error) => {
       console.error(error);
     });
@@ -441,7 +411,12 @@ function toggleMute() {
   state.localStream.getAudioTracks().forEach((track) => {
     track.enabled = state.micEnabled;
   });
-  ui.signalPill.textContent = state.micEnabled ? "Mic live" : "Mic muted";
+  setButtons();
+}
+
+function toggleSpeaker() {
+  state.speakerOn = !state.speakerOn;
+  ui.remoteAudio.muted = !state.speakerOn;
   setButtons();
 }
 
@@ -482,7 +457,7 @@ async function startScreenShare() {
 
   state.isScreenSharing = true;
   setScreenUI(true);
-  ui.sessionMeta.textContent = "Screen sharing active";
+  setHint("Lokin can see your screen now.");
   setButtons();
 
   await negotiate({ restart: false });
@@ -507,7 +482,9 @@ async function stopScreenShare({ renegotiate = true } = {}) {
   state.isScreenSharing = false;
   ui.screenPreview.srcObject = null;
   setScreenUI(false);
-  ui.sessionMeta.textContent = state.pc ? "Realtime session active" : "Session not started";
+  if (state.pc) {
+    setHint("Screen sharing stopped.");
+  }
   setButtons();
 
   if (state.pc && renegotiate) {
@@ -558,6 +535,9 @@ async function disconnectSession() {
   state.outAnalyser = null;
   state.outFreqData = null;
   state.outTimeData = null;
+  state.micAnalyser = null;
+  state.micFreqData = null;
+  state.micTimeData = null;
   ui.remoteAudio.srcObject = null;
   ui.remoteAudio.pause();
 
@@ -566,38 +546,45 @@ async function disconnectSession() {
     state.animationId = null;
   }
 
+  ui.botAvatar.classList.remove("speaking");
+  ui.userAvatar.classList.remove("speaking");
+
   setStatus("Idle", "idle");
-  setHint("Session ended. Tap start to connect again.");
-  ui.signalPill.textContent = "Mic off";
-  ui.sessionMeta.textContent = "Session not started";
+  setHint("Interview ended. Press the green button to start again.");
   setScreenUI(false);
-  updateLatency();
+  updateTimer();
+  drawIdleViz();
   setButtons();
 }
 
-ui.connectBtn.addEventListener("click", async () => {
-  ui.connectBtn.disabled = true;
+ui.callBtn.addEventListener("click", async () => {
+  if (state.pc) {
+    await disconnectSession();
+    return;
+  }
+  ui.callBtn.disabled = true;
   try {
     await connectSession();
   } catch (error) {
     console.error(error);
-    setStatus("Connection failed", "error");
+    setStatus("Failed", "error");
     setHint("Could not connect. Check server logs and retry.");
     await disconnectSession();
   } finally {
+    ui.callBtn.disabled = false;
     setButtons();
   }
 });
 
 ui.muteBtn.addEventListener("click", toggleMute);
+ui.speakerBtn.addEventListener("click", toggleSpeaker);
 ui.screenBtn.addEventListener("click", () => {
   toggleScreenShare().catch((error) => {
     console.error(error);
   });
 });
-ui.resetBtn.addEventListener("click", disconnectSession);
 
-setInterval(updateLatency, 1000);
+setInterval(updateTimer, 1000);
 resizeCanvas();
 setButtons();
 setScreenUI(false);
