@@ -3,72 +3,110 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Lokin Voice UI</title>
-    <meta name="theme-color" content="#10141a" />
+    <title>Lokin</title>
+    <meta name="theme-color" content="#f4f5f7" />
     <link rel="stylesheet" href="./assets/styles.css" />
   </head>
   <body>
-    <main class="app">
-      <header class="topbar">
-        <div class="brand">
-          <span class="brand-mark"></span>
-          <div>
-            <div class="brand-title">Lokin Voice</div>
-            <div class="brand-subtitle">Realtime audio canvas</div>
-          </div>
-        </div>
-        <div class="status" aria-live="polite">
-          <span class="status-dot" data-status="idle"></span>
-          <span id="statusText">Idle</span>
-        </div>
-      </header>
-
-      <section class="stage">
-        <div class="split">
-          <div class="panel">
-            <div class="panel-header">
-              <span>Screen Share</span>
-              <span class="panel-sub" id="screenStatus">Inactive</span>
-            </div>
-            <div class="screen-shell">
-              <video id="screenPreview" autoplay muted playsinline></video>
-              <div class="screen-placeholder" id="screenPlaceholder">
-                Screen Shared show here
-              </div>
-            </div>
-          </div>
-
-          <div class="panel">
-            <div class="panel-header">
-              <span>Lokin's</span>
-              <span class="panel-sub" id="sessionMeta">Session not started</span>
-            </div>
-            <div class="viz-shell">
-              <canvas id="viz" aria-label="Voice visualization" role="img"></canvas>
-              <div class="viz-overlay">
-                <div class="signal-pill" id="signalPill">Mic off</div>
-              </div>
-            </div>
-
-            <div class="controls">
-              <button class="btn primary" id="connectBtn">Start Session</button>
-              <button class="btn ghost" id="muteBtn" disabled>Mute Mic</button>
-              <button class="btn ghost" id="screenBtn">Share Screen</button>
-              <button class="btn ghost" id="resetBtn" disabled>Disconnect</button>
-            </div>
-
-            <p class="hint" id="hintText">
-              Allow microphone access to begin. Your voice is streamed in realtime and
-              responses play back immediately.
-            </p>
-          </div>
-        </div>
+    <main class="app" id="appRoot" data-sharing="false">
+      <section class="screen-pane" aria-label="Shared screen">
+        <video id="screenPreview" autoplay muted playsinline></video>
       </section>
 
-      <footer class="footer">
-        <div>Powered by Lokin SmallWebRTC transport</div>
-        <div id="latencyText">Audio link: standby</div>
-      </footer>
+      <aside class="call-pane">
+        <div class="call-card">
+          <div class="call-top">
+            <div class="brand">Lokin</div>
+            <div class="live-badge" id="liveBadge" data-status="idle" aria-live="polite">
+              <span class="live-dot"></span>
+              <span id="statusText">Idle</span>
+              <span class="timer" id="timerText"></span>
+            </div>
+          </div>
+
+          <div class="participants">
+            <div class="avatar-group">
+              <div class="avatar interviewer" id="botAvatar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                  <circle cx="12" cy="8.2" r="3.4" />
+                  <path d="M5.5 19.5c1.3-3.2 3.6-4.8 6.5-4.8s5.2 1.6 6.5 4.8" />
+                </svg>
+              </div>
+              <div class="avatar candidate" id="userAvatar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                  <circle cx="12" cy="8.2" r="3.4" />
+                  <path d="M5.5 19.5c1.3-3.2 3.6-4.8 6.5-4.8s5.2 1.6 6.5 4.8" />
+                </svg>
+              </div>
+            </div>
+            <div class="names">
+              <div class="name-block">
+                <div class="name">Lokin</div>
+                <div class="role">Interviewer</div>
+              </div>
+              <div class="names-divider"></div>
+              <div class="name-block">
+                <div class="name">You</div>
+                <div class="role">Candidate</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="viz-strip">
+            <canvas id="viz" aria-label="Voice activity" role="img"></canvas>
+          </div>
+
+          <p class="hint" id="hintText">
+            Press the green button to start your interview. Allow microphone access when asked.
+          </p>
+
+          <div class="controls">
+            <button class="ctl" id="muteBtn" disabled aria-label="Mute microphone" data-on="false">
+              <svg class="icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="3" width="6" height="11" rx="3" />
+                <path d="M6 11a6 6 0 0 0 12 0" />
+                <path d="M12 17v4" />
+              </svg>
+              <svg class="icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="3" width="6" height="11" rx="3" />
+                <path d="M6 11a6 6 0 0 0 12 0" />
+                <path d="M12 17v4" />
+                <line x1="4.5" y1="4.5" x2="19.5" y2="19.5" />
+              </svg>
+            </button>
+
+            <button class="ctl call start" id="callBtn" aria-label="Start interview">
+              <svg class="icon-start" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6.6 3.4c.6-.6 1.6-.5 2.1.2l1.8 2.5c.4.6.4 1.4-.1 1.9l-1.1 1.2c1 2 2.6 3.6 4.6 4.6l1.2-1.1c.5-.5 1.3-.5 1.9-.1l2.5 1.8c.7.5.8 1.5.2 2.1l-1.4 1.4c-.7.7-1.7 1-2.6.7-2.9-.9-5.6-2.5-7.8-4.7S4.3 9 3.4 6.1c-.3-.9 0-1.9.7-2.6l2.5-.1z" />
+              </svg>
+              <svg class="icon-end" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 9.5c-3.6 0-6.9 1.2-9.3 3.4-.6.5-.7 1.4-.2 2l1.5 1.9c.4.6 1.2.7 1.9.4l2.4-1.2c.5-.3.8-.8.8-1.4v-1.3c1.9-.5 3.9-.5 5.8 0v1.3c0 .6.3 1.1.8 1.4l2.4 1.2c.6.3 1.4.2 1.9-.4l1.5-1.9c.5-.6.4-1.5-.2-2-2.4-2.2-5.7-3.4-9.3-3.4z" />
+              </svg>
+            </button>
+
+            <button class="ctl" id="speakerBtn" disabled aria-label="Toggle speaker" data-on="true">
+              <svg class="icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z" />
+                <path d="M15.5 9.2a4 4 0 0 1 0 5.6" />
+                <path d="M18 6.8a7.4 7.4 0 0 1 0 10.4" />
+              </svg>
+              <svg class="icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z" />
+                <line x1="15.5" y1="9.5" x2="20.5" y2="14.5" />
+                <line x1="20.5" y1="9.5" x2="15.5" y2="14.5" />
+              </svg>
+            </button>
+
+            <button class="ctl" id="screenBtn" disabled aria-label="Share screen" data-on="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3.5" y="4.5" width="17" height="12" rx="1.8" />
+                <path d="M9 20.5h6" />
+                <path d="M12 16.5v4" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </aside>
     </main>
 
     <audio id="remoteAudio" autoplay playsinline></audio>

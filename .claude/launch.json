@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "lokin",
+      "runtimeExecutable": "uv",
+      "runtimeArgs": ["run", "app.py"],
+      "port": 7860
+    }
+  ]
+}
