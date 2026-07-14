@@ -57,4 +57,7 @@
 Then open http://localhost:7860 in your browser.
 
 
-<img src="./ui/dist/assets/lokin.png" width="100%" style="position: absolute; top: 0; right: 0" alt="Project Logo"/>
+<img src="./ui/dist/assets/lokin-ui-1.png" width="100%" style="position: absolute; top: 0; right: 0" alt="Project UI 1"/>
+
+
+<img src="./ui/dist/assets/lokin-ui-2.png" width="100%" style="position: absolute; top: 0; right: 0" alt="Project UI 2"/>
