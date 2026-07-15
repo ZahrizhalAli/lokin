@@ -47,6 +47,7 @@ from lokin.services.openai.tts import OpenAITTSService
 from lokin.services.openai.llm import OpenAILLMService
 from lokin.transports.base_transport import BaseTransport, TransportParams
 from lokin.utils.system_prompt_parser import load_prompt
+from lokin.utils.resume_parser import get_resume_text
 
 logger.info("✅[Success] All components loaded successfully!")
 from dotenv import load_dotenv
@@ -77,11 +78,25 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 
     llm = OpenAILLMService(api_key=os.getenv("OPENAI_API_KEY"))
 
+    # Fold the candidate's uploaded resume (if any) into the system prompt so
+    # the interviewer can tailor questions to their background.
+    system_content = SYSTEM_PROMPT
+    resume_text = get_resume_text()
+    if resume_text:
+        logger.info(f"Injecting candidate resume into system prompt ({len(resume_text)} chars)")
+        system_content = (
+            f"{SYSTEM_PROMPT}\n\n"
+            "# Candidate Resume\n"
+            "The following is the candidate's resume. Use it to tailor your "
+            "questions to their background and experience.\n\n"
+            f"{resume_text}"
+        )
+
     # Build Messages Template
     messages = [
         {
             "role": "system",
-            "content": SYSTEM_PROMPT,
+            "content": system_content,
         },
     ]
 

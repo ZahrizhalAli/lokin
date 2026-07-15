@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lokin - Get started</title>
+    <meta name="theme-color" content="#f4f5f7" />
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <main class="onboarding" aria-label="Get started">
+      <section class="onboard-card">
+        <div class="onboard-head">
+          <div class="brand">Lokin</div>
+          <p class="onboard-title">Upload your resume</p>
+          <p class="onboard-sub">
+            We use your resume to tailor the interview to your background. PDF only.
+          </p>
+        </div>
+
+        <form id="resumeForm">
+          <label class="dropzone" id="dropzone" for="resumeInput" data-state="empty">
+            <input id="resumeInput" type="file" accept="application/pdf,.pdf" hidden />
+
+            <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 16V4" />
+              <path d="M7 9l5-5 5 5" />
+              <path d="M4 16v2.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V16" />
+            </svg>
+
+            <div class="dropzone-empty">
+              <span class="dropzone-primary">Click to choose a PDF</span>
+              <span class="dropzone-secondary">or drag &amp; drop it here</span>
+            </div>
+
+            <div class="dropzone-file">
+              <span class="file-name" id="fileName"></span>
+              <span class="file-meta" id="fileMeta"></span>
+            </div>
+          </label>
+
+          <p class="onboard-status" id="status" role="status" aria-live="polite"></p>
+
+          <div class="onboard-actions">
+            <button type="submit" class="btn btn-primary" id="continueBtn" disabled>
+              Continue
+            </button>
+            <a class="btn btn-ghost" href="./index.html" id="skipLink">Skip for now</a>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script src="./assets/onboarding.js"></script>
+  </body>
+</html>

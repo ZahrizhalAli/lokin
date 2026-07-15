@@ -191,8 +191,31 @@ def _setup_webrtc_routes(app: FastAPI, args: argparse.Namespace):
 
     @app.get("/", include_in_schema=False)
     async def root_redirect():
-        """Redirect root requests to client interface."""
-        return RedirectResponse(url="/client/")
+        """Redirect root requests to the onboarding (resume upload) page."""
+        return RedirectResponse(url="/client/onboarding.html")
+
+    @app.post("/api/resume")
+    async def upload_resume(request: Request):
+        """Receive an uploaded resume PDF, parse it, and store the text.
+
+        The onboarding page POSTs the raw PDF bytes as the request body. The
+        extracted text is kept in memory and injected into the interviewer's
+        system prompt when the next session starts (see ``run_bot``).
+        """
+        from lokin.utils.resume_parser import parse_resume, set_resume_text
+
+        pdf_bytes = await request.body()
+        filename = request.headers.get("X-Filename", "resume.pdf")
+
+        try:
+            resume_text = parse_resume(pdf_bytes)
+        except Exception as e:
+            logger.exception(f"Failed to parse resume: {e}")
+            raise HTTPException(status_code=422, detail="Could not parse resume PDF")
+
+        set_resume_text(resume_text)
+        logger.info(f"Stored resume '{filename}' ({len(resume_text)} chars parsed)")
+        return {"ok": True, "chars": len(resume_text)}
 
     @app.get("/files/{filename:path}")
     async def download_file(filename: str):

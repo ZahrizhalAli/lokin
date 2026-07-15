@@ -412,3 +412,195 @@ body {
     display: none;
   }
 }
+
+/* ---- Onboarding (resume upload) ---- */
+
+.onboarding {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.onboard-card {
+  width: min(460px, 100%);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 32px 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: rise 0.5s ease both;
+}
+
+.onboard-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.onboard-title {
+  margin: 8px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.onboard-sub {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+#resumeForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 168px;
+  padding: 24px;
+  border: 1.5px dashed #cdd2e0;
+  border-radius: 16px;
+  background: #fafbfd;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.dropzone:hover,
+.dropzone.is-dragging {
+  border-color: var(--navy);
+  background: rgba(43, 57, 144, 0.04);
+  color: var(--navy);
+}
+
+.dropzone-icon {
+  width: 34px;
+  height: 34px;
+}
+
+.dropzone-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dropzone-primary {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dropzone-secondary {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dropzone-file {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.file-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+  word-break: break-all;
+}
+
+.file-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Swap the empty prompt for the selected-file summary once a file is chosen. */
+.dropzone[data-state="filled"] {
+  border-style: solid;
+  border-color: var(--navy);
+  background: rgba(43, 57, 144, 0.05);
+  color: var(--navy);
+}
+
+.dropzone[data-state="filled"] .dropzone-empty {
+  display: none;
+}
+
+.dropzone[data-state="filled"] .dropzone-file {
+  display: flex;
+}
+
+.onboard-status {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 13px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.onboard-status[data-level="error"] {
+  color: var(--red-strong);
+}
+
+.onboard-status[data-level="ok"] {
+  color: var(--green-strong);
+}
+
+.onboard-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.btn-primary {
+  background: var(--navy);
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(43, 57, 144, 0.28);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--navy-deep);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+}
+
+.btn-ghost:hover {
+  color: var(--text);
+}
