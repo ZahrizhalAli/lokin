@@ -61,3 +61,12 @@ Then open http://localhost:7860 in your browser.
 
 
 <img src="./ui/dist/assets/lokin-ui-2.png" width="100%" style="position: absolute; top: 0; right: 0" alt="Project UI 2"/>
+
+
+## 📈 Contributing - We thanks and need all help we can get.
+
+- [ ] **`Issue with Screen Injector`**: Screen leaves traces and kept sending to LLM aggregator eventhough screen share is stopped.
+- [ ] **`Onboarding Input for LLM Context`**
+- [X] **`Update UI with dynamic adjustment when disabling screen share`**
+- [ ] **`Write Additional Testing`**
+- [ ] **`Local Inference services`**
