@@ -57,10 +57,15 @@
 Then open http://localhost:7860 in your browser.
 
 
+## Onboarding - Resume Parsing Context 
+<img src="./ui/dist/assets/lokin-ui-3.png" width="100%" style="position: absolute; top: 0; right: 0" alt="Project UI 2"/>
+
+## Interviewer Agent Real-Time
 <img src="./ui/dist/assets/lokin-ui-1.png" width="100%" style="position: absolute; top: 0; right: 0" alt="Project UI 1"/>
 
 
 <img src="./ui/dist/assets/lokin-ui-2.png" width="100%" style="position: absolute; top: 0; right: 0" alt="Project UI 2"/>
+
 
 
 ## 📈 Contributing - We thanks and need all help we can get.
