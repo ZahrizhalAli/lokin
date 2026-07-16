@@ -85,11 +85,20 @@ class ScreenShareContextInjector(FrameProcessor):
         if not latest:
             return
 
-        if latest.pts is not None and self._last_injected_pts == latest.pts:
-            return
-
         now = self._time_fn()
         if now - self._latest_frame_time > self._stale_after_secs:
+            # No fresh screen frame recently: the user stopped sharing (or the
+            # stream stalled). Evict the previously injected screenshot so the
+            # LLM stops "seeing" a screen that's no longer being shared, and
+            # reset injection state so a fresh frame re-injects cleanly if the
+            # user resumes sharing. This check must come before the pts dedup
+            # below, otherwise the frozen last frame keeps matching
+            # _last_injected_pts and we'd never get here.
+            self._evict_last_injected(frame.context)
+            self._reset_injection_state()
+            return
+
+        if latest.pts is not None and self._last_injected_pts == latest.pts:
             return
 
         if now - self._last_injected_time < self._min_interval_secs:
@@ -125,6 +134,12 @@ class ScreenShareContextInjector(FrameProcessor):
         except ValueError:
             # Already gone (e.g. context was rewritten or summarized).
             pass
+
+    def _reset_injection_state(self):
+        self._last_injected_message = None
+        self._last_injected_frame = None
+        self._last_injected_pts = None
+        self._last_injected_time = 0.0
 
     def _frames_similar(self, a: InputImageRawFrame, b: InputImageRawFrame) -> bool:
         try:

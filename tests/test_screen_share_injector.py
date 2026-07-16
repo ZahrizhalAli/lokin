@@ -144,6 +144,53 @@ def test_skips_stale_screen_frame():
     asyncio.run(run())
 
 
+def test_evicts_screenshot_when_sharing_stops():
+    async def run():
+        injector, clock = make_injector()
+        context = LLMContext()
+
+        # User is sharing: a screenshot gets injected.
+        injector._remember_screen_frame(make_screen_frame(0, pts=1))
+        clock.now = 2.0
+        await inject(injector, context)
+        assert len(image_messages(context)) == 1
+
+        # User stops sharing: no new screen frames arrive, so _latest_frame
+        # stays frozen on the last frame. The next LLM run happens well after
+        # the staleness window. The stale screenshot must be evicted so the
+        # LLM no longer "sees" the screen.
+        clock.now = 2.0 + injector._stale_after_secs + 1.0
+        await inject(injector, context)
+
+        assert len(image_messages(context)) == 0
+
+    asyncio.run(run())
+
+
+def test_reinjects_after_sharing_resumes():
+    async def run():
+        injector, clock = make_injector()
+        context = LLMContext()
+
+        injector._remember_screen_frame(make_screen_frame(0, pts=1))
+        clock.now = 2.0
+        await inject(injector, context)
+
+        # Sharing stops: screenshot evicted.
+        clock.now = 2.0 + injector._stale_after_secs + 1.0
+        await inject(injector, context)
+        assert len(image_messages(context)) == 0
+
+        # Sharing resumes with a fresh frame: it re-injects cleanly.
+        injector._remember_screen_frame(make_screen_frame(255, pts=2))
+        clock.now += 2.0
+        await inject(injector, context)
+
+        assert len(image_messages(context)) == 1
+
+    asyncio.run(run())
+
+
 def test_dedups_same_frame_by_pts():
     async def run():
         injector, clock = make_injector()
