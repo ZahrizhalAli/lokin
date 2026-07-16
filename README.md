@@ -70,7 +70,7 @@ Then open http://localhost:7860 in your browser.
 
 ## 📈 Contributing - We thanks and need all help we can get.
 
-- [ ] **`Issue with Screen Injector`**: Screen leaves traces and kept sending to LLM aggregator eventhough screen share is stopped.
+- [X] **`Issue with Screen Injector`**: Screen leaves traces and kept sending to LLM aggregator eventhough screen share is stopped.
 - [ ] **`Onboarding Input for LLM Context`**
 - [X] **`Update UI with dynamic adjustment when disabling screen share`**
 - [ ] **`Write Additional Testing`**
