@@ -4,6 +4,7 @@ import asyncio
 import uuid
 from abc import abstractmethod
 from dataclasses import dataclass
+from enum import StrEnum
 from typing import (
     Any,
     AsyncGenerator,
@@ -1185,6 +1186,21 @@ class AudioContextTTSService(WebsocketTTSService):
                 logger.trace(f"{self} time out on audio context {context_id}")
                 break
 
+class TextAggregationMode(StrEnum):
+    """Controls how incoming text is aggregated before TTS synthesis.
+
+    Parameters:
+        SENTENCE: Buffer text until sentence boundaries are detected before synthesis.
+            Produces more natural speech but adds latency (~200-300ms per sentence).
+        TOKEN: Stream text tokens directly to TTS as they arrive.
+            Reduces latency but may affect speech quality depending on the TTS provider.
+    """
+
+    SENTENCE = "sentence"
+    TOKEN = "token"
+
+    def __str__(self):
+        return self.value
 
 class AudioContextWordTTSService(AudioContextTTSService, WebsocketWordTTSService):
     """Websocket-based TTS service with word timestamps and audio context management.

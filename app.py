@@ -43,6 +43,7 @@ from lokin.runner.utils import (create_transport, maybe_capture_participant_scre
 from lokin.services.cartesia.tts import CartesiaTTSService
 from lokin.services.deepgram.stt import DeepgramSTTService
 from lokin.services.openai.stt import OpenAISTTService
+from lokin.services.elevenlabs.tts import ElevenLabsTTSService
 from lokin.services.openai.tts import OpenAITTSService
 from lokin.services.openai.llm import OpenAILLMService
 from lokin.transports.base_transport import BaseTransport, TransportParams
@@ -75,8 +76,9 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     # )
 
     tts = OpenAITTSService(api_key=os.getenv("OPENAI_API_KEY"), speed=1.2)
-
+    tts = ElevenLabsTTSService(api_key=os.getenv("ELEVEN"))
     llm = OpenAILLMService(api_key=os.getenv("OPENAI_API_KEY"))
+
 
     # Fold the candidate's uploaded resume (if any) into the system prompt so
     # the interviewer can tailor questions to their background.
